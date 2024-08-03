@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"library-api/author_management/config/env"
 	"library-api/author_management/internal/apperror"
+
+	_ "github.com/jackc/pgx/v5/stdlib"
 )
 
 func NewPostgres(dbConfig *env.DBConfig) (*sql.DB, error) {
