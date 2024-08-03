@@ -14,6 +14,7 @@ import (
 type AuthorRepository interface {
 	SelectOneAuthor(ctx context.Context, author entity.Author) (*entity.Author, error)
 	SelectAllAuthor(ctx context.Context) ([]entity.Author, error)
+	InsertAuthor(ctx context.Context, authors []entity.Author) error
 }
 
 type authorRepositoryImpl struct {
@@ -76,7 +77,6 @@ func (r *authorRepositoryImpl) SelectOneAuthor(ctx context.Context, author entit
 	return &scan, nil
 }
 
-
 func (r *authorRepositoryImpl) SelectAllAuthor(ctx context.Context) ([]entity.Author, error) {
 	q := `
 		SELECT a.author_id,a.author_name,a.photo_url,a.gender,g.author_genre_id,g.genre_name 
@@ -110,3 +110,4 @@ func (r *authorRepositoryImpl) SelectAllAuthor(ctx context.Context) ([]entity.Au
 	return results, nil
 
 }
+
