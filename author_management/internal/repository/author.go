@@ -55,8 +55,8 @@ func (r *authorRepositoryImpl) InsertAuthor(ctx context.Context, authors []entit
 func (r *authorRepositoryImpl) SelectOneAuthor(ctx context.Context, author entity.Author) (*entity.Author, error) {
 	q := `
 		SELECT a.author_id,a.author_name,a.photo_url,a.gender,g.author_genre_id,g.genre_name 
-		FROM authors 
-		JOIN author_genres ON a.author_genre_id=g.author_genre_id
+		FROM authors a
+		JOIN author_genres g ON a.author_genre_id=g.author_genre_id
 		WHERE author_id=$1 and deleted_at is null
 		`
 	var scan entity.Author
@@ -80,8 +80,8 @@ func (r *authorRepositoryImpl) SelectOneAuthor(ctx context.Context, author entit
 func (r *authorRepositoryImpl) SelectAllAuthor(ctx context.Context) ([]entity.Author, error) {
 	q := `
 		SELECT a.author_id,a.author_name,a.photo_url,a.gender,g.author_genre_id,g.genre_name 
-		FROM authors 
-		JOIN author_genres ON a.author_genre_id=g.author_genre_id
+		FROM authors a
+		JOIN author_genres g ON a.author_genre_id=g.author_genre_id
 		WHERE deleted_at is null
 		`
 	rows, err := r.db.QueryContext(ctx, q)
@@ -110,4 +110,3 @@ func (r *authorRepositoryImpl) SelectAllAuthor(ctx context.Context) ([]entity.Au
 	return results, nil
 
 }
-
