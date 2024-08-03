@@ -1,6 +1,7 @@
 package entity
 
-type AuthorGenre struct{
-	Id uint
-	Name string
+type AuthorGenre struct {
+	Id     uint
+	Author Author
+	Genre  Genre
 }
