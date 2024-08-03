@@ -46,3 +46,37 @@ func (r *authorRepositoryImpl) InsertAuthor(ctx context.Context, authors []entit
 	}
 	return nil
 }
+
+func (r *authorRepositoryImpl) SelectOneAuthor(ctx context.Context, author entity.Author) ([]entity.Author, error) {
+	q := `
+		SELECT a.author_id,a.author_name,a.photo_url,a.gender,g.author_genre_id,g.genre_name 
+		FROM authors 
+		JOIN author_genres ON a.author_genre_id=g.author_genre_id
+		WHERE author_id=$1 and deleted_at is null
+		`
+	rows, err := r.db.QueryContext(ctx, q)
+	if err != nil {
+		logrus.Error(err)
+		return nil, err
+	}
+
+	defer rows.Close()
+	results := make([]entity.Author, 0)
+	for rows.Next() {
+		var scan entity.Author
+		if err := rows.Scan(&scan.Id, &scan.Name, &scan.PhotoUrl, &scan.Gender, &scan.Genre.Id, &scan.Genre.Name); err != nil {
+			logrus.Error(err)
+			return nil, err
+		}
+
+		results = append(results, scan)
+	}
+
+	if err := rows.Err(); err != nil {
+		logrus.Error(err)
+		return nil, err
+	}
+
+	return results, nil
+
+}
