@@ -2,6 +2,9 @@ package repository
 
 import (
 	"context"
+	"database/sql"
+	"errors"
+	"library-api/author_management/internal/apperror"
 	"library-api/author_management/internal/database/transaction"
 	"library-api/author_management/internal/entity"
 
@@ -51,4 +54,25 @@ func (r *authorGenreRepositoryImpl) SelectAllAuthorGenre(ctx context.Context) ([
 	}
 
 	return results, nil
+}
+
+func (r *authorGenreRepositoryImpl) SelectOneAuthorGenre(ctx context.Context, authorGenre entity.AuthorGenre) (*entity.AuthorGenre, error) {
+	q := `
+		SELECT author_genre_id,genre_name 
+		FROM author_genres
+		WHERE author_genre_id=$1 and deleted_at is null
+		`
+	var scan entity.AuthorGenre
+	if err := r.db.QueryRowContext(ctx, q, authorGenre.Id).Scan(
+		&scan.Id,
+		&scan.Name,
+	); err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, apperror.ErrResourceNotFound
+		}
+
+		logrus.Error(err)
+		return nil, err
+	}
+	return &scan, nil
 }
