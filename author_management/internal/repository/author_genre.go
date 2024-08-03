@@ -13,6 +13,8 @@ import (
 
 type AuthorGenreRepository interface {
 	SelectAllAuthorGenre(ctx context.Context) ([]entity.AuthorGenre, error)
+	SelectOneAuthorGenre(ctx context.Context, authorGenre entity.AuthorGenre) (*entity.AuthorGenre, error)
+	InsertAuthorGenre(ctx context.Context, authorGenres []entity.AuthorGenre) error
 }
 
 type authorGenreRepositoryImpl struct {
@@ -75,4 +77,29 @@ func (r *authorGenreRepositoryImpl) SelectOneAuthorGenre(ctx context.Context, au
 		return nil, err
 	}
 	return &scan, nil
+}
+
+func (r *authorGenreRepositoryImpl) InsertAuthorGenre(ctx context.Context, authorGenres []entity.AuthorGenre) error {
+	q := `insert into authors
+		(author_name,gender,photo_url,author_genre_id) 
+		VALUES
+		($1,$2,$3)
+	`
+	stmt, err := r.db.PrepareContext(ctx, q)
+	if err != nil {
+		logrus.Error(err)
+		return err
+	}
+	defer stmt.Close()
+	for _, authorGenre := range authorGenres {
+		result, err := stmt.ExecContext(ctx, authorGenre.Name)
+		if err != nil {
+			logrus.Error(err)
+			return err
+		}
+		if rowsAffected, _ := result.RowsAffected(); rowsAffected == 0 {
+			return apperror.ErrResourceNotFound
+		}
+	}
+	return nil
 }
