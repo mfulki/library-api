@@ -29,8 +29,14 @@ func NewAuthorGenreRepository(db transaction.Transaction) *authorGenreRepository
 
 func (r *authorGenreRepositoryImpl) SelectAllAuthorGenre(ctx context.Context) ([]entity.AuthorGenre, error) {
 	q := `
-		SELECT author_genre_id,genre_name 
-		FROM author_genres
+		SELECT ag.author_genre_id,
+				ag.genre_id,
+				ag.author_id,
+				g.genre_name,
+				a.author_name 
+		FROM author_genres ag 
+		JOIN genres g on g.genre_id=ag.genre_id 
+		JOIN author a on a.author_id=ag.author_id
 		WHERE deleted_at is null`
 	rows, err := r.db.QueryContext(ctx, q)
 	if err != nil {
@@ -42,7 +48,7 @@ func (r *authorGenreRepositoryImpl) SelectAllAuthorGenre(ctx context.Context) ([
 	results := make([]entity.AuthorGenre, 0)
 	for rows.Next() {
 		var scan entity.AuthorGenre
-		if err := rows.Scan(&scan.Id, &scan.Name); err != nil {
+		if err := rows.Scan(&scan.Id, &scan.Genre.Id, &scan.Author.Id, &scan.Genre.Name, &scan.Author.Name); err != nil {
 			logrus.Error(err)
 			return nil, err
 		}
@@ -60,14 +66,22 @@ func (r *authorGenreRepositoryImpl) SelectAllAuthorGenre(ctx context.Context) ([
 
 func (r *authorGenreRepositoryImpl) SelectOneAuthorGenre(ctx context.Context, authorGenre entity.AuthorGenre) (*entity.AuthorGenre, error) {
 	q := `
-		SELECT author_genre_id,genre_name 
-		FROM author_genres
-		WHERE author_genre_id=$1 and deleted_at is null
-		`
+		SELECT ag.author_genre_id,
+				ag.genre_id,
+				ag.author_id,
+				g.genre_name,
+				a.author_name 
+		FROM author_genres ag 
+		JOIN genres g on g.genre_id=ag.genre_id 
+		JOIN author a on a.author_id=ag.author_id
+		WHERE ag.author_genre_id=$1 and deleted_at is null`
 	var scan entity.AuthorGenre
 	if err := r.db.QueryRowContext(ctx, q, authorGenre.Id).Scan(
 		&scan.Id,
-		&scan.Name,
+		&scan.Genre.Id,
+		&scan.Author.Id,
+		&scan.Genre.Name,
+		&scan.Author.Name,
 	); err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return nil, apperror.ErrResourceNotFound
@@ -80,10 +94,10 @@ func (r *authorGenreRepositoryImpl) SelectOneAuthorGenre(ctx context.Context, au
 }
 
 func (r *authorGenreRepositoryImpl) InsertAuthorGenre(ctx context.Context, authorGenres []entity.AuthorGenre) error {
-	q := `insert into authors
-		(author_name,gender,photo_url,author_genre_id) 
+	q := `insert into author_genres
+		(author_id,genre_id) 
 		VALUES
-		($1,$2,$3)
+		($1,$2)
 	`
 	stmt, err := r.db.PrepareContext(ctx, q)
 	if err != nil {
@@ -92,7 +106,7 @@ func (r *authorGenreRepositoryImpl) InsertAuthorGenre(ctx context.Context, autho
 	}
 	defer stmt.Close()
 	for _, authorGenre := range authorGenres {
-		result, err := stmt.ExecContext(ctx, authorGenre.Name)
+		result, err := stmt.ExecContext(ctx, authorGenre.Author.Id, authorGenre.Genre.Id)
 		if err != nil {
 			logrus.Error(err)
 			return err
