@@ -49,9 +49,10 @@ func (r *userRepositoryImpl) RegisterUser(ctx context.Context, user entity.User)
 }
 
 func (r *userRepositoryImpl) SelectOneByEmail(ctx context.Context, user entity.User) (*entity.User, error) {
-	q := `SELECT user_id from users where email=$1 and deleted_at is null`
+	q := `SELECT user_id,user_password from users where email=$1 and deleted_at is null`
 	err := r.db.QueryRowContext(ctx, q, user.Email).Scan(
 		&user.ID,
+		&user.Password,
 	)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
