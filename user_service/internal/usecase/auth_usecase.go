@@ -37,5 +37,4 @@ func (u *authUsecaseImpl) Register(ctx context.Context, user entity.User) error 
 		return err
 	}
 	return nil
-
 }
