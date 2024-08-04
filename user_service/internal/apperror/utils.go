@@ -1,8 +1,6 @@
 package apperror
 
 import (
-	"net/http"
-
 	"github.com/gofiber/fiber/v2"
 )
 
@@ -21,7 +19,7 @@ var errStatusCode = map[error]int{
 }
 
 func GetErrStatusCode(sourceErr error) (int, error) {
-	code := http.StatusInternalServerError
+	code := fiber.StatusInternalServerError
 	err := ErrInternalServer
 
 	if val, ok := errStatusCode[sourceErr]; ok {
