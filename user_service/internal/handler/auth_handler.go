@@ -12,19 +12,16 @@ import (
 )
 
 type AuthHandler struct {
-}
-
-type authHandlerImpl struct {
 	authUsecase usecase.AuthUsecase
 }
 
-func NewAuthHandler(authUsecase usecase.AuthUsecase) *authHandlerImpl {
-	return &authHandlerImpl{
+func NewAuthHandler(authUsecase usecase.AuthUsecase) *AuthHandler {
+	return &AuthHandler{
 		authUsecase: authUsecase,
 	}
 }
 
-func (h *authHandlerImpl) Register(ctx *fiber.Ctx) error {
+func (h *AuthHandler) Register(ctx *fiber.Ctx) error {
 	body := new(request.UserRegister)
 
 	if err := validate.BodyJSON(ctx, body); err != nil {
@@ -41,7 +38,7 @@ func (h *authHandlerImpl) Register(ctx *fiber.Ctx) error {
 
 }
 
-func (h *authHandlerImpl) Login(ctx *fiber.Ctx) error {
+func (h *AuthHandler) Login(ctx *fiber.Ctx) error {
 	body := new(request.UserLogin)
 
 	if err := validate.BodyJSON(ctx, body); err != nil {
