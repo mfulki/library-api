@@ -40,3 +40,21 @@ func (h *authHandlerImpl) Register(ctx *fiber.Ctx) error {
 	})
 
 }
+
+func (h *authHandlerImpl) Login(ctx *fiber.Ctx) error {
+	body := new(request.UserLogin)
+
+	if err := validate.BodyJSON(ctx, body); err != nil {
+		return err
+	}
+
+	token, err := h.authUsecase.Login(ctx.Context(), body.Auth())
+	if err != nil {
+		return err
+	}
+	return ctx.Status(http.StatusOK).JSON(dto.Response{
+		Message: constant.RegisterSuccessMsg,
+		Data:    token,
+	})
+
+}

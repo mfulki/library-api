@@ -25,3 +25,15 @@ func (req *UserRegister) Auth() entity.User {
 		Gender:      req.Gender,
 	}
 }
+
+type UserLogin struct {
+	Email    string `json:"email" validate:"required,email"`
+	Password string `json:"password" validate:"required"`
+}
+
+func (req *UserLogin) Auth() entity.User {
+	return entity.User{
+		Email:    req.Email,
+		Password: &req.Password,
+	}
+}
