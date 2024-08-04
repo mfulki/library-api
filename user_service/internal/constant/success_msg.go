@@ -5,4 +5,5 @@ const (
 	DataCreatedMsg   = "data has been created"
 	DataUpdatedMsg   = "data has been updated"
 	DataDeletedMsg   = "data has been deleted"
+	RegisterSuccessMsg = "User has succesfully register"
 )
