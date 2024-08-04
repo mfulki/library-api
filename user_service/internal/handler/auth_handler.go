@@ -1,7 +1,6 @@
 package handler
 
 import (
-	"net/http"
 	"user-service/internal/constant"
 	"user-service/internal/dto"
 	"user-service/internal/dto/request"
@@ -32,7 +31,7 @@ func (h *AuthHandler) Register(ctx *fiber.Ctx) error {
 	if err != nil {
 		return err
 	}
-	return ctx.Status(http.StatusCreated).JSON(dto.Response{
+	return ctx.Status(fiber.StatusCreated).JSON(dto.Response{
 		Message: constant.RegisterSuccessMsg,
 	})
 
@@ -49,8 +48,8 @@ func (h *AuthHandler) Login(ctx *fiber.Ctx) error {
 	if err != nil {
 		return err
 	}
-	return ctx.Status(http.StatusOK).JSON(dto.Response{
-		Message: constant.RegisterSuccessMsg,
+	return ctx.Status(fiber.StatusOK).JSON(dto.Response{
+		Message: constant.LoginPassedMsg,
 		Data:    token,
 	})
 
