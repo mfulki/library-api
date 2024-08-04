@@ -2,6 +2,7 @@ package usecase
 
 import (
 	"context"
+	"user-service/internal/apperror"
 	"user-service/internal/constant"
 	"user-service/internal/entity"
 	"user-service/internal/repository"
@@ -10,6 +11,7 @@ import (
 
 type AuthUsecase interface {
 	Register(ctx context.Context, user entity.User) error
+	Login(ctx context.Context, user entity.User) (string, error)
 }
 
 type authUsecaseImpl struct {
@@ -37,4 +39,26 @@ func (u *authUsecaseImpl) Register(ctx context.Context, user entity.User) error 
 		return err
 	}
 	return nil
+}
+
+func (u *authUsecaseImpl) Login(ctx context.Context, user entity.User) (string, error) {
+	result, err := u.userRepository.SelectOneByEmail(ctx, user)
+	if err != nil {
+		return "", err
+	}
+	if !utils.HashCompareDefault(*user.Password, result.Password) {
+		return "", apperror.ErrInternalServer
+	}
+
+	jwtData := map[string]any{
+		"ID":    user.ID,
+		"Email": user.Email,
+	}
+
+	token, err := utils.JwtGenerateUser(jwtData)
+	if err != nil {
+		return "", err
+	}
+	return token, nil
+
 }
