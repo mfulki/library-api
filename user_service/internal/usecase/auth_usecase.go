@@ -47,12 +47,14 @@ func (u *authUsecaseImpl) Register(ctx context.Context, user entity.User) error 
 func (u *authUsecaseImpl) Login(ctx context.Context, user entity.User) (string, error) {
 	result, err := u.userRepository.SelectOneByEmail(ctx, user)
 	if err != nil {
-
+		if err == apperror.ErrResourceNotFound{
+			return "",apperror.ErrInvalidCredential
+		}
 		return "", err
 	}
 
 	if !utils.HashCompareDefault(*user.Password, result.Password) {
-		return "", apperror.ErrInvalidRequest
+		return "", apperror.ErrInvalidCredential
 	}
 
 	jwtData := map[string]any{
