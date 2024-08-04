@@ -26,7 +26,10 @@ func NewAuthUsecase(userRepository repository.UserRepository) *authUsecaseImpl {
 
 func (u *authUsecaseImpl) Register(ctx context.Context, user entity.User) error {
 	_, err := u.userRepository.SelectOneByEmail(ctx, user)
-	if err != nil {
+	if err != apperror.ErrResourceNotFound {
+		if err == nil {
+			return apperror.ErrEmailExist
+		}
 		return err
 	}
 	user.PhotoURL = constant.DefaultPhotoURL
@@ -44,10 +47,12 @@ func (u *authUsecaseImpl) Register(ctx context.Context, user entity.User) error 
 func (u *authUsecaseImpl) Login(ctx context.Context, user entity.User) (string, error) {
 	result, err := u.userRepository.SelectOneByEmail(ctx, user)
 	if err != nil {
+
 		return "", err
 	}
+
 	if !utils.HashCompareDefault(*user.Password, result.Password) {
-		return "", apperror.ErrInternalServer
+		return "", apperror.ErrInvalidRequest
 	}
 
 	jwtData := map[string]any{
