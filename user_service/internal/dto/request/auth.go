@@ -12,6 +12,7 @@ type UserRegister struct {
 	Password    string `json:"password" validate:"required,min=8"`
 	DateOfBirth string `json:"date_of_birth" validate:"required,date"`
 	Gender      string `json:"gender" validate:"required,oneof=male female"`
+	Address     string `json:"address" validate:"required,min=2"`
 }
 
 func (req *UserRegister) Auth() entity.User {
@@ -23,6 +24,7 @@ func (req *UserRegister) Auth() entity.User {
 		Password:    &req.Password,
 		DateOfBirth: dateOfBirth,
 		Gender:      req.Gender,
+		Address:     req.Address,
 	}
 }
 
