@@ -31,9 +31,7 @@ func (r *userRepositoryImpl) RegisterUser(ctx context.Context, user entity.User)
 		INSERT INTO users 
 			(user_name, email, user_password, date_of_birth, gender, address,photo_url)
 		VALUES
-			($1, $2, $3, $4, $5, $6, $7, $8)
-		RETURNING
-			user_id, user_name, email, user_password, date_of_birth, gender, photo_url, is_oauth, is_verified, created_at
+			($1, $2, $3, $4, $5, $6, $7)
 	`
 	result, err := r.db.ExecContext(ctx, q, user.Name, user.Email, user.Password, user.DateOfBirth, user.Gender, user.Address, user.PhotoURL)
 	if err != nil {
