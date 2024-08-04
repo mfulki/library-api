@@ -16,4 +16,5 @@ var (
 	ErrInvalidPassword   = errors.New("password is incorrect")
 	ErrInvalidPassToken  = errors.New("password or token combination is incorrect")
 	ErrInvalidParam      = errors.New("route param is invalid")
+	ErrEmailExist        = errors.New("the email already registered")
 )
