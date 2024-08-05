@@ -8,11 +8,14 @@ import (
 	"book-service/pkg/llog"
 	"context"
 	"fmt"
+	"log"
+	"net"
 	"os"
 	"os/signal"
 	"syscall"
 
 	"github.com/gofiber/fiber/v2"
+	"google.golang.org/grpc"
 )
 
 const (
@@ -33,10 +36,23 @@ func main() {
 	if err != nil {
 		llog.Fatal(err)
 	}
+	netListen, err := net.Listen("tcp", ":50051")
+	if err != nil {
+		log.Fatalf("Failed to listen %v", err.Error())
+	}
 
-	srv := server.New(db, fileLog).Setup()
+	grpcServer := grpc.NewServer()
 
-	listenWithGracefulShutdown(srv)
+	log.Printf("Server started at %v", netListen.Addr())
+
+	srv := server.New(db, fileLog, grpcServer).Setup()
+
+	if err := srv.Serve(netListen); err != nil {
+		log.Fatalf("failed to serve %v", err.Error())
+	}
+
+	// grpcServer.GracefulStop()
+	// listenWithGracefulShutdown(srv)
 }
 
 func listenWithGracefulShutdown(srv *fiber.App) {

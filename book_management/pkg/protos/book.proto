@@ -1,0 +1,32 @@
+syntax = "proto3";
+package go_grpc;
+
+option go_package="internal/pb/books";
+
+service BookService{
+    rpc GetBooks(Empty) returns (Books);
+}
+
+message Empty{};
+
+message Books{
+    repeated Book book=1;
+}
+message Book{
+    uint64 id=1;
+    string title=2;
+    string isbn=3;
+    string description =4;
+    repeated uint64 author_id=5;
+    repeated uint64 category_id=6;
+    repeated BookItem book_item =7;
+    string created_at =8;
+    string updated_at=9;
+    string deleted_at=10;
+}
+
+message BookItem{
+    uint64 id =1;
+    uint64 book_id=2;
+    string status=3;
+}
