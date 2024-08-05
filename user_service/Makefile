@@ -6,3 +6,6 @@ dev:
 
 mock:
 	mockery --all
+
+protobuf: 
+	 protoc --proto_path=pkg/protos pkg/protos/*.proto --go_out=./ --go-grpc_out=./            
