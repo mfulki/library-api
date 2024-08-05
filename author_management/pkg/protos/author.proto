@@ -1,0 +1,30 @@
+syntax = "proto3";
+package author;
+
+option go_package="internal/pb/author";
+
+service AuthorService{
+    rpc GetAuthors(Ids)returns(Authors);
+}
+
+message Authors{
+    repeated Author author=1;
+}
+message Author{
+    uint64 id=1;
+    string author_name=2;
+    string photo_url=3;
+    string gender=4;
+    string created_at =8;
+    string updated_at=9;
+    string deleted_at=10;
+}
+message Id {
+    uint64 Id=1;
+}
+
+message Ids {
+    repeated Id id=1;
+}
+
+message Empty{};
