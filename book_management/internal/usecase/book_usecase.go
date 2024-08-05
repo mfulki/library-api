@@ -1,10 +1,13 @@
 package usecase
 
 import (
+	"book-service/internal/entity"
 	"book-service/internal/repository"
+	"context"
 )
 
 type BookUsecase interface {
+	GetAllBook(ctx context.Context) ([]entity.Book, error)
 }
 
 type bookUsecaseImpl struct {
@@ -17,6 +20,13 @@ func NewBookUsecase(bookRepository repository.BookRepository) *bookUsecaseImpl {
 	}
 }
 
+func (u *bookUsecaseImpl) GetAllBook(ctx context.Context) ([]entity.Book, error) {
+	books, err := u.bookRepository.GetAllBook(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return books, nil
+}
 func (u *bookUsecaseImpl) UserBorrowBook() {
 
 }
