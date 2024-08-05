@@ -4,7 +4,7 @@ import (
 	"context"
 	"database/sql"
 
-	"library-api/author_management/internal/constant"
+	"author-service/internal/constant"
 )
 
 type Transaction interface {

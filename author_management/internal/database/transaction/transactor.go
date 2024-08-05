@@ -1,10 +1,10 @@
 package transaction
 
 import (
+	"author-service/internal/apperror"
+	"author-service/internal/constant"
 	"context"
 	"database/sql"
-	"library-api/author_management/internal/apperror"
-	"library-api/author_management/internal/constant"
 )
 
 type Transactor interface {

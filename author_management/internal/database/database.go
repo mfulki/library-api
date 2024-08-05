@@ -1,10 +1,10 @@
 package database
 
 import (
+	"author-service/config/env"
+	"author-service/internal/apperror"
 	"database/sql"
 	"fmt"
-	"library-api/author_management/config/env"
-	"library-api/author_management/internal/apperror"
 
 	_ "github.com/jackc/pgx/v5/stdlib"
 )

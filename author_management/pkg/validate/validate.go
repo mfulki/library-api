@@ -1,7 +1,7 @@
 package validate
 
 import (
-	"library-api/author_management/internal/apperror"
+	"author-service/internal/apperror"
 	"reflect"
 	"strings"
 	"time"

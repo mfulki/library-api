@@ -1,7 +1,7 @@
 package config
 
 import (
-	"library-api/author_management/config/env"
+	"author-service/config/env"
 	"sync"
 )
 
@@ -9,16 +9,19 @@ type Config interface {
 	Load()
 }
 
-func Load() {
-	var App = new(env.AppConfig)
-	var DB = new(env.DBConfig)
-	var Hash = new(env.HashConfig)
+var (
+	App  = new(env.AppConfig)
+	DB   = new(env.DBConfig)
+	Hash = new(env.HashConfig)
+)
 
-	var configs = []Config{
-		App,
-		DB,
-		Hash,
-	}
+var configs = []Config{
+	App,
+	DB,
+	Hash,
+}
+
+func Load() {
 	wg := new(sync.WaitGroup)
 	wgFunc := func(wg *sync.WaitGroup, cfg Config) {
 		cfg.Load()

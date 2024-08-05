@@ -1,9 +1,9 @@
 package llog
 
 import (
+	"author-service/internal/apperror"
 	"errors"
 	"fmt"
-	"library-api/author_management/internal/apperror"
 	"runtime"
 	"strings"
 	"time"
