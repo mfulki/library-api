@@ -38,11 +38,13 @@ func (s server) Setup() *fiber.App {
 	userRepository := repository.NewUserRepository(s.db)
 	authUsecase := usecase.NewAuthUsecase(userRepository)
 	authHandler := handler.NewAuthHandler(authUsecase)
+	bookHandler := handler.NewBookHandler()
 
 	return InitRouter(&handlers{
 		ExampleHandler: exampleHandler,
 		AuthHandler:    authHandler,
 		CustomHandler:  customHandler,
 		Middleware:     middleware,
+		BookHandler:    bookHandler,
 	})
 }
