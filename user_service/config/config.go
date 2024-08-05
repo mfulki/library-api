@@ -14,12 +14,14 @@ var (
 	App  = new(env.AppConfig)
 	DB   = new(env.DBConfig)
 	Hash = new(env.HashConfig)
+	Jwt  = new(env.JwtConfig)
 )
 
 var configs = []Config{
 	App,
 	DB,
 	Hash,
+	Jwt,
 }
 
 func Load() {

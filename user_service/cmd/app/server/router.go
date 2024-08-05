@@ -3,6 +3,7 @@ package server
 import (
 	"user-service/internal/domain/custom"
 	"user-service/internal/domain/example"
+	"user-service/internal/handler"
 	"user-service/internal/middleware"
 
 	"github.com/gofiber/fiber/v2"
@@ -13,6 +14,7 @@ type handlers struct {
 	ExampleHandler *example.Handler
 	CustomHandler  *custom.Handler
 	Middleware     *middleware.Middleware
+	AuthHandler    *handler.AuthHandler
 }
 
 func InitRouter(h *handlers) *fiber.App {
@@ -25,10 +27,15 @@ func InitRouter(h *handlers) *fiber.App {
 	api := router.Group("/api")
 	api.Use(h.Middleware.RequestID)
 	api.Use(h.Middleware.LoggerInfo)
+	auth := api.Group("/auth")
+	api.Use(h.Middleware.RequestID)
+	api.Use(h.Middleware.LoggerInfo)
+	auth.Post("/login", h.AuthHandler.Login)
+	auth.Post("/register", h.AuthHandler.Register)
 
 	h.ExampleHandler.RegisterRoute(api)
-
-	api.Use(h.CustomHandler.NotFound)
+	
+	router.Use(h.CustomHandler.NotFound)
 
 	return router
 }

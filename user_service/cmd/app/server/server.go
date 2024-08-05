@@ -5,7 +5,10 @@ import (
 	"user-service/internal/database/transaction"
 	"user-service/internal/domain/custom"
 	"user-service/internal/domain/example"
+	"user-service/internal/handler"
 	"user-service/internal/middleware"
+	"user-service/internal/repository"
+	"user-service/internal/usecase"
 	"user-service/pkg/llog"
 
 	"github.com/gofiber/fiber/v2"
@@ -32,9 +35,13 @@ func (s server) Setup() *fiber.App {
 	exampleRepo := example.NewRepository(s.db)
 	exampleUsecase := example.NewUsecase(exampleRepo)
 	exampleHandler := example.NewHandler(exampleUsecase)
+	userRepository := repository.NewUserRepository(s.db)
+	authUsecase := usecase.NewAuthUsecase(userRepository)
+	authHandler := handler.NewAuthHandler(authUsecase)
 
 	return InitRouter(&handlers{
 		ExampleHandler: exampleHandler,
+		AuthHandler:    authHandler,
 		CustomHandler:  customHandler,
 		Middleware:     middleware,
 	})
