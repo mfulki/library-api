@@ -5,6 +5,9 @@ option go_package="internal/pb/books";
 
 service BookService{
     rpc GetBooks(Empty) returns (Books);
+    rpc GetBook(Id) returns(Book);
+    rpc PostBorrows(Ids)returns(StockJournals);
+    rpc PostReturns(Ids)returns(StockJournals);
 }
 
 message Empty{};
@@ -29,4 +32,28 @@ message BookItem{
     uint64 id =1;
     uint64 book_id=2;
     string status=3;
+}
+
+message StockJournal{
+    uint64 id=1;
+    uint64 item_id=2;
+    string status=3;
+    uint64 user_id=4;
+    string created_at =5;
+    string updated_at=6;
+    string deleted_at=7;
+}
+message StockJournals{
+    repeated StockJournal stock_journal=1;
+}
+
+message Id {
+    uint64 Id=1;
+}
+message Ids {
+    repeated Id id=1;
+}
+
+message Status{
+    string status=1;
 }
