@@ -6,6 +6,7 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
+	"user-service/cmd/app/client"
 	"user-service/cmd/app/server"
 	"user-service/config"
 	"user-service/internal/constant"
@@ -21,7 +22,6 @@ const (
 	timeoutMsg  = "Timeout of %v"
 )
 
-
 func main() {
 	config.Load()
 
@@ -34,8 +34,17 @@ func main() {
 	if err != nil {
 		llog.Fatal(err)
 	}
+	defer db.Close()
 
-	srv := server.New(db, fileLog).Setup()
+	gRPCConnection, err := client.NewGRPCClient(config.GRPC)
+	if err != nil {
+		llog.Fatal(err)
+	}
+	defer gRPCConnection.BookService.Close()
+	defer gRPCConnection.AuthorService.Close()
+	defer gRPCConnection.CategoryService.Close()
+
+	srv := server.New(db, fileLog, gRPCConnection).Setup()
 
 	listenWithGracefulShutdown(srv)
 }

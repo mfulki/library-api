@@ -15,6 +15,7 @@ var (
 	DB   = new(env.DBConfig)
 	Hash = new(env.HashConfig)
 	Jwt  = new(env.JwtConfig)
+	GRPC = new(env.GRPCConfig)
 )
 
 var configs = []Config{
@@ -22,6 +23,7 @@ var configs = []Config{
 	DB,
 	Hash,
 	Jwt,
+	GRPC,
 }
 
 func Load() {
