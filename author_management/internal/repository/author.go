@@ -1,20 +1,22 @@
 package repository
 
 import (
+	"author-service/internal/apperror"
+	"author-service/internal/database/transaction"
+	"author-service/internal/entity"
 	"context"
 	"database/sql"
 	"errors"
-	"library-api/author_management/internal/apperror"
-	"library-api/author_management/internal/database/transaction"
-	"library-api/author_management/internal/entity"
 
 	"github.com/sirupsen/logrus"
 )
 
 type AuthorRepository interface {
-	SelectOneAuthor(ctx context.Context, author entity.Author) (*entity.Author, error)
-	SelectAllAuthor(ctx context.Context) ([]entity.Author, error)
+	GetOneAuthor(ctx context.Context, author entity.Author) (*entity.Author, error)
+	GetAllAuthor(ctx context.Context) ([]entity.Author, error)
 	InsertAuthor(ctx context.Context, authors []entity.Author) error
+	GetSomeAuthor(ctx context.Context, ids []uint64) ([]entity.Author, error)
+	DeleteOneAuthor(ctx context.Context, id uint64) error
 }
 
 type authorRepositoryImpl struct {
@@ -29,7 +31,7 @@ func NewAuthorRepository(db transaction.Transaction) *authorRepositoryImpl {
 
 func (r *authorRepositoryImpl) InsertAuthor(ctx context.Context, authors []entity.Author) error {
 	q := `insert into authors
-		(author_name,gender,photo_url,author_genre_id) 
+		(author_name,gender,photo_url) 
 		VALUES
 		($1,$2,$3)
 	`
@@ -40,7 +42,7 @@ func (r *authorRepositoryImpl) InsertAuthor(ctx context.Context, authors []entit
 	}
 	defer stmt.Close()
 	for _, author := range authors {
-		result, err := stmt.ExecContext(ctx, author.Name, author.Gender, author.PhotoUrl, author.Genre.Id)
+		result, err := stmt.ExecContext(ctx, author.Name, author.Gender, author.PhotoUrl)
 		if err != nil {
 			logrus.Error(err)
 			return err
@@ -52,11 +54,10 @@ func (r *authorRepositoryImpl) InsertAuthor(ctx context.Context, authors []entit
 	return nil
 }
 
-func (r *authorRepositoryImpl) SelectOneAuthor(ctx context.Context, author entity.Author) (*entity.Author, error) {
+func (r *authorRepositoryImpl) GetOneAuthor(ctx context.Context, author entity.Author) (*entity.Author, error) {
 	q := `
-		SELECT a.author_id,a.author_name,a.photo_url,a.gender,g.author_genre_id,g.genre_name 
+		SELECT a.author_id,a.author_name,a.photo_url,a.gender,g.author_genre_id
 		FROM authors a
-		JOIN author_genres g ON a.author_genre_id=g.author_genre_id
 		WHERE author_id=$1 and deleted_at is null
 		`
 	var scan entity.Author
@@ -64,8 +65,7 @@ func (r *authorRepositoryImpl) SelectOneAuthor(ctx context.Context, author entit
 		&scan.Id,
 		&scan.Name,
 		&scan.PhotoUrl,
-		&scan.Genre.Id,
-		&scan.Genre.Name,
+		&scan.Gender,
 	); err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return nil, apperror.ErrResourceNotFound
@@ -77,11 +77,10 @@ func (r *authorRepositoryImpl) SelectOneAuthor(ctx context.Context, author entit
 	return &scan, nil
 }
 
-func (r *authorRepositoryImpl) SelectAllAuthor(ctx context.Context) ([]entity.Author, error) {
+func (r *authorRepositoryImpl) GetAllAuthor(ctx context.Context) ([]entity.Author, error) {
 	q := `
-		SELECT a.author_id,a.author_name,a.photo_url,a.gender,g.author_genre_id,g.genre_name 
+		SELECT a.author_id,a.author_name,a.photo_url,a.gender
 		FROM authors a
-		JOIN author_genres g ON a.author_genre_id=g.author_genre_id
 		WHERE deleted_at is null
 		`
 	rows, err := r.db.QueryContext(ctx, q)
@@ -94,7 +93,7 @@ func (r *authorRepositoryImpl) SelectAllAuthor(ctx context.Context) ([]entity.Au
 	results := make([]entity.Author, 0)
 	for rows.Next() {
 		var scan entity.Author
-		if err := rows.Scan(&scan.Id, &scan.Name, &scan.PhotoUrl, &scan.Gender, &scan.Genre.Id, &scan.Genre.Name); err != nil {
+		if err := rows.Scan(&scan.Id, &scan.Name, &scan.PhotoUrl, &scan.Gender); err != nil {
 			logrus.Error(err)
 			return nil, err
 		}
@@ -109,4 +108,42 @@ func (r *authorRepositoryImpl) SelectAllAuthor(ctx context.Context) ([]entity.Au
 
 	return results, nil
 
+}
+
+func (r *authorRepositoryImpl) GetSomeAuthor(ctx context.Context, ids []uint64) ([]entity.Author, error) {
+	q := `
+		SELECT a.author_id,a.author_name,a.photo_url,a.gender
+		FROM authors a
+		WHERE deleted_at is null and a.author_id=$1
+		`
+	stmt, err := r.db.PrepareContext(ctx, q)
+	if err != nil {
+		logrus.Error(err)
+		return nil, err
+	}
+	var authors []entity.Author
+	for _, id := range ids {
+		var author entity.Author
+		if err := stmt.QueryRowContext(ctx, id).Scan(
+			&author.Id, &author.Name, &author.PhotoUrl, &author.Gender); err != nil {
+			logrus.Error(err)
+			return nil, err
+		}
+		authors = append(authors, author)
+	}
+	return authors, nil
+}
+
+func (r *authorRepositoryImpl) DeleteOneAuthor(ctx context.Context, id uint64) error{
+	q:=`UPDATE authors set deleted_at=now where author_id=$1`
+	result, err := r.db.ExecContext(ctx, q,id)
+		if err != nil {
+			logrus.Error(err)
+			return err
+		}
+		if rowsAffected, _ := result.RowsAffected(); rowsAffected == 0 {
+			return apperror.ErrResourceNotFound
+		}
+
+	return nil
 }
