@@ -26,10 +26,24 @@ func (h *BookHandler) GetBooks(ctx context.Context, in *pb.Empty) (*pb.Books, er
 	return response.NewGetAllBookResponse(books), nil
 }
 func (h *BookHandler) GetBook(ctx context.Context, in *pb.Id) (*pb.Book, error) {
-	book, err := h.bookUsecase.GetBook(ctx,in.GetId())
+	book, err := h.bookUsecase.GetBook(ctx, in.GetId())
 	if err != nil {
 		return nil, err
 	}
 
 	return response.NewGetBookResponse(book), nil
+}
+func (h *BookHandler) PostBorrow(ctx context.Context, in *pb.Ids) (*pb.Message, error) {
+	err := h.bookUsecase.UserBorrowBook(ctx, in.Id)
+	if err != nil {
+		return nil, err
+	}
+	return &pb.Message{Message: ""}, nil
+}
+func (h *BookHandler) PostReturns(ctx context.Context, in *pb.Ids) (*pb.Message, error) {
+	err := h.bookUsecase.UserReturnsBook(ctx, in.Id)
+	if err != nil {
+		return nil, err
+	}
+	return &pb.Message{Message: ""}, nil
 }

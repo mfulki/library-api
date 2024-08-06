@@ -31,8 +31,8 @@ const (
 type BookServiceClient interface {
 	GetBooks(ctx context.Context, in *Empty, opts ...grpc.CallOption) (*Books, error)
 	GetBook(ctx context.Context, in *Id, opts ...grpc.CallOption) (*Book, error)
-	PostBorrows(ctx context.Context, in *Ids, opts ...grpc.CallOption) (*StockJournals, error)
-	PostReturns(ctx context.Context, in *Ids, opts ...grpc.CallOption) (*StockJournals, error)
+	PostBorrows(ctx context.Context, in *Ids, opts ...grpc.CallOption) (*Message, error)
+	PostReturns(ctx context.Context, in *Ids, opts ...grpc.CallOption) (*Message, error)
 }
 
 type bookServiceClient struct {
@@ -63,9 +63,9 @@ func (c *bookServiceClient) GetBook(ctx context.Context, in *Id, opts ...grpc.Ca
 	return out, nil
 }
 
-func (c *bookServiceClient) PostBorrows(ctx context.Context, in *Ids, opts ...grpc.CallOption) (*StockJournals, error) {
+func (c *bookServiceClient) PostBorrows(ctx context.Context, in *Ids, opts ...grpc.CallOption) (*Message, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(StockJournals)
+	out := new(Message)
 	err := c.cc.Invoke(ctx, BookService_PostBorrows_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
@@ -73,9 +73,9 @@ func (c *bookServiceClient) PostBorrows(ctx context.Context, in *Ids, opts ...gr
 	return out, nil
 }
 
-func (c *bookServiceClient) PostReturns(ctx context.Context, in *Ids, opts ...grpc.CallOption) (*StockJournals, error) {
+func (c *bookServiceClient) PostReturns(ctx context.Context, in *Ids, opts ...grpc.CallOption) (*Message, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(StockJournals)
+	out := new(Message)
 	err := c.cc.Invoke(ctx, BookService_PostReturns_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
@@ -89,8 +89,8 @@ func (c *bookServiceClient) PostReturns(ctx context.Context, in *Ids, opts ...gr
 type BookServiceServer interface {
 	GetBooks(context.Context, *Empty) (*Books, error)
 	GetBook(context.Context, *Id) (*Book, error)
-	PostBorrows(context.Context, *Ids) (*StockJournals, error)
-	PostReturns(context.Context, *Ids) (*StockJournals, error)
+	PostBorrows(context.Context, *Ids) (*Message, error)
+	PostReturns(context.Context, *Ids) (*Message, error)
 	mustEmbedUnimplementedBookServiceServer()
 }
 
@@ -107,10 +107,10 @@ func (UnimplementedBookServiceServer) GetBooks(context.Context, *Empty) (*Books,
 func (UnimplementedBookServiceServer) GetBook(context.Context, *Id) (*Book, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetBook not implemented")
 }
-func (UnimplementedBookServiceServer) PostBorrows(context.Context, *Ids) (*StockJournals, error) {
+func (UnimplementedBookServiceServer) PostBorrows(context.Context, *Ids) (*Message, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method PostBorrows not implemented")
 }
-func (UnimplementedBookServiceServer) PostReturns(context.Context, *Ids) (*StockJournals, error) {
+func (UnimplementedBookServiceServer) PostReturns(context.Context, *Ids) (*Message, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method PostReturns not implemented")
 }
 func (UnimplementedBookServiceServer) mustEmbedUnimplementedBookServiceServer() {}
