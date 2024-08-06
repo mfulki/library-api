@@ -11,6 +11,7 @@ type Transaction interface {
 	ExecContext(context.Context, string, ...any) (sql.Result, error)
 	QueryContext(context.Context, string, ...any) (*sql.Rows, error)
 	QueryRowContext(context.Context, string, ...any) *sql.Row
+	PrepareContext(context.Context, string) (*sql.Stmt, error)
 }
 
 type transaction struct {
@@ -45,4 +46,11 @@ func (t *transaction) QueryRowContext(ctx context.Context, query string, args ..
 	}
 
 	return t.db.QueryRowContext(ctx, query, args...)
+}
+func (t *transaction) PrepareContext(ctx context.Context, query string) (*sql.Stmt, error) {
+	if tx, ok := ctx.Value(constant.TxCtx).(*sql.Tx); ok {
+		return tx.PrepareContext(ctx, query)
+	}
+
+	return t.db.PrepareContext(ctx, query)
 }

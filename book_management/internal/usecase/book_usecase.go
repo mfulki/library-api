@@ -36,5 +36,5 @@ func (u *bookUsecaseImpl) GetBook(ctx context.Context, id uint64) (*entity.Book,
 	return book, nil
 }
 func (u *bookUsecaseImpl) UserBorrowBook() {
-
+	
 }
