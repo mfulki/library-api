@@ -13,6 +13,7 @@ service BookService{
 message Empty{};
 
 message Books{
+    repeated uint64 book_ids=2;
     repeated Book book=1;
 }
 message Book{

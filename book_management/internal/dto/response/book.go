@@ -5,9 +5,9 @@ import (
 	pb "book-service/internal/pb/books"
 )
 
-func NewGetAllBookResponse(books []entity.Book) *pb.Books {
+func NewGetAllBookResponse(books *entity.Books) *pb.Books {
 	pbBooks := []*pb.Book{}
-	for _, book := range books {
+	for _, book := range books.Slice {
 		bookItem := []*pb.BookItem{}
 		for _, item := range book.BookItem {
 			bookItem = append(bookItem, &pb.BookItem{
@@ -30,5 +30,5 @@ func NewGetAllBookResponse(books []entity.Book) *pb.Books {
 		}
 		pbBooks = append(pbBooks, &pbBook)
 	}
-	return &pb.Books{Book: pbBooks}
+	return &pb.Books{Book: pbBooks, BookIds: books.BookIds}
 }

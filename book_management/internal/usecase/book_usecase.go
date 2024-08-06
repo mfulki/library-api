@@ -7,7 +7,7 @@ import (
 )
 
 type BookUsecase interface {
-	GetAllBook(ctx context.Context) ([]entity.Book, error)
+	GetAllBook(ctx context.Context) (*entity.Books, error)
 }
 
 type bookUsecaseImpl struct {
@@ -20,7 +20,7 @@ func NewBookUsecase(bookRepository repository.BookRepository) *bookUsecaseImpl {
 	}
 }
 
-func (u *bookUsecaseImpl) GetAllBook(ctx context.Context) ([]entity.Book, error) {
+func (u *bookUsecaseImpl) GetAllBook(ctx context.Context) (*entity.Books, error) {
 	books, err := u.bookRepository.GetAllBook(ctx)
 	if err != nil {
 		return nil, err

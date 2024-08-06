@@ -18,3 +18,8 @@ type Book struct {
 	DeletedAt   sql.NullTime
 	BookItem    BookItemJson
 }
+
+type Books struct{
+	Slice []Book
+	BookIds []uint64
+}

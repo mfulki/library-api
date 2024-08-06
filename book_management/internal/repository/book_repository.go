@@ -11,7 +11,7 @@ import (
 )
 
 type BookRepository interface {
-	GetAllBook(ctx context.Context) ([]entity.Book, error)
+	GetAllBook(ctx context.Context) (*entity.Books, error)
 }
 type bookRepositoryImpl struct {
 	db transaction.Transaction
@@ -23,7 +23,7 @@ func NewBookRepository(db transaction.Transaction) *bookRepositoryImpl {
 	}
 }
 
-func (r *bookRepositoryImpl) GetAllBook(ctx context.Context) ([]entity.Book, error) {
+func (r *bookRepositoryImpl) GetAllBook(ctx context.Context) (*entity.Books, error) {
 	q := `
     SELECT 
         b.book_id,
@@ -54,8 +54,7 @@ func (r *bookRepositoryImpl) GetAllBook(ctx context.Context) ([]entity.Book, err
         b.description, 
         b.created_at, 
         b.updated_at, 
-        b.deleted_at,
-		bi.status;
+        b.deleted_at;
     `
 	rows, err := r.db.QueryContext(ctx, q)
 	if err != nil {
@@ -64,6 +63,7 @@ func (r *bookRepositoryImpl) GetAllBook(ctx context.Context) ([]entity.Book, err
 	}
 	defer rows.Close()
 	var books []entity.Book
+	var bookIds []uint64
 	for rows.Next() {
 		var book entity.Book
 		var category pq.Int64Array
@@ -90,8 +90,10 @@ func (r *bookRepositoryImpl) GetAllBook(ctx context.Context) ([]entity.Book, err
 		}
 		book.CategoryId = []int64(category)
 		book.AuthorId = []int64(author)
+		bookIds = append(bookIds, book.Id)
 		books = append(books, book)
 
 	}
-	return books, nil
+	result := entity.Books{Slice: books, BookIds: bookIds}
+	return &result, nil
 }
