@@ -12,6 +12,7 @@ type Book struct {
 	AuthorId    []int64
 	CategoryId  []int64
 	BookItemId  []int64
+	Stock       uint64
 	CreatedAt   sql.NullTime
 	UpdatedAt   sql.NullTime
 	DeletedAt   sql.NullTime

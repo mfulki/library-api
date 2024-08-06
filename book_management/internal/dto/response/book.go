@@ -23,6 +23,7 @@ func NewGetAllBookResponse(books []entity.Book) *pb.Books {
 			AuthorId:    book.AuthorId,
 			CategoryId:  book.CategoryId,
 			BookItem:    bookItem,
+			Stock:       book.Stock,
 			CreatedAt:   book.CreatedAt.Time.String(),
 			UpdatedAt:   book.UpdatedAt.Time.String(),
 			DeletedAt:   book.DeletedAt.Time.String(),

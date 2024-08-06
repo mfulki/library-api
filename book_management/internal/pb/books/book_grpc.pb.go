@@ -19,10 +19,10 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	BookService_GetBooks_FullMethodName    = "/go_grpc.BookService/GetBooks"
-	BookService_GetBook_FullMethodName     = "/go_grpc.BookService/GetBook"
-	BookService_PostBorrows_FullMethodName = "/go_grpc.BookService/PostBorrows"
-	BookService_PostReturns_FullMethodName = "/go_grpc.BookService/PostReturns"
+	BookService_GetBooks_FullMethodName    = "/book.BookService/GetBooks"
+	BookService_GetBook_FullMethodName     = "/book.BookService/GetBook"
+	BookService_PostBorrows_FullMethodName = "/book.BookService/PostBorrows"
+	BookService_PostReturns_FullMethodName = "/book.BookService/PostReturns"
 )
 
 // BookServiceClient is the client API for BookService service.
@@ -210,7 +210,7 @@ func _BookService_PostReturns_Handler(srv interface{}, ctx context.Context, dec 
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var BookService_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "go_grpc.BookService",
+	ServiceName: "book.BookService",
 	HandlerType: (*BookServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{

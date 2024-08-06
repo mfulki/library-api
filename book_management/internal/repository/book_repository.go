@@ -40,7 +40,8 @@ func (r *bookRepositoryImpl) GetAllBook(ctx context.Context) ([]entity.Book, err
         jsonb_build_object(
                 'book_item_id', bi.book_item_id,
                 'status', bi.status))
-        AS book_item_statuses
+        AS book_item_statuses,
+		COUNT(distinct CASE WHEN bi.status = 'available' THEN bi.book_item_id END) AS stock
     FROM books b
     LEFT JOIN book_categories bc ON b.book_id = bc.book_id
     LEFT JOIN book_items bi ON b.book_id = bi.book_id
@@ -81,6 +82,7 @@ func (r *bookRepositoryImpl) GetAllBook(ctx context.Context) ([]entity.Book, err
 			&bookItem,
 			&author,
 			&book.BookItem,
+			&book.Stock,
 		)
 		if err != nil {
 			log.Fatalf("Row scanning failed: %v", err)

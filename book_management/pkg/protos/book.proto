@@ -1,5 +1,5 @@
 syntax = "proto3";
-package go_grpc;
+package book;
 
 option go_package="internal/pb/books";
 
@@ -23,9 +23,10 @@ message Book{
     repeated int64 author_id=5;
     repeated int64 category_id=6;
     repeated BookItem book_item =7;
-    string created_at =8;
-    string updated_at=9;
-    string deleted_at=10;
+    uint64 stock=8;
+    string created_at =9;
+    string updated_at=10;
+    string deleted_at=11;
 }
 
 message BookItem{
