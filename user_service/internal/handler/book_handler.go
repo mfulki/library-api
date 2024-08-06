@@ -55,7 +55,8 @@ func (h *BookHandler) GetAllBook(ctx *fiber.Ctx) error {
 
 func (h *BookHandler) GetOneBook(ctx *fiber.Ctx) error {
 	param := new(request.BookId)
-	ctx.ParamsParser(&param)
+	ctx.ParamsParser(param)
+
 	ids := []uint64{param.Id}
 	respBook, err := h.bookService.GetBook(ctx.Context(), &pb.Id{Id: param.Id})
 	if err != nil {
