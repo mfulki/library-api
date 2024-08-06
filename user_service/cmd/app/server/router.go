@@ -17,7 +17,6 @@ type handlers struct {
 	AuthHandler    *handler.AuthHandler
 	BookHandler    *handler.BookHandler
 	AuthorHandler  *handler.AuthorHandler
-	
 }
 
 func InitRouter(h *handlers) *fiber.App {
@@ -37,6 +36,7 @@ func InitRouter(h *handlers) *fiber.App {
 	auth.Post("/register", h.AuthHandler.Register)
 	book := api.Group("/book")
 	book.Get("/", h.BookHandler.GetAllBook)
+	book.Get("/:id", h.BookHandler.GetOneBook)
 	author := api.Group("/author")
 	author.Get("/some", h.AuthorHandler.GetSomeAuthorsBook)
 	h.ExampleHandler.RegisterRoute(api)

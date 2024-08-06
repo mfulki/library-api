@@ -20,7 +20,7 @@ type BooksResponse struct {
 	DeletedAt   string                     `json:"deleted_at,omitempty"`
 }
 
-func GetBookResp(books *pb.Books, authorMap *author.AuthorsBooksMap, categoryMap *categories.BookCategoriesMap) []BooksResponse {
+func GetBooksResp(books *pb.Books, authorMap *author.AuthorsBooksMap, categoryMap *categories.BookCategoriesMap) []BooksResponse {
 	var response []BooksResponse
 	for _, book := range books.Book {
 		resp := BooksResponse{
@@ -39,4 +39,19 @@ func GetBookResp(books *pb.Books, authorMap *author.AuthorsBooksMap, categoryMap
 		response = append(response, resp)
 	}
 	return response
+}
+func GetBookResp(book *pb.Book, authorMap *author.AuthorsBooksMap, categoryMap *categories.BookCategoriesMap) BooksResponse {
+	return BooksResponse{
+		Id:          book.Id,
+		Title:       book.Title,
+		Isbn:        book.Isbn,
+		Description: book.Description,
+		BookItem:    book.BookItem,
+		Category:    categoryMap.BookCategoriesMap[book.Id].BookCategoriesList,
+		Authors:     authorMap.AuthorBooksMap[book.Id].AuthorBookList,
+		Stock:       book.Stock,
+		CreatedAt:   book.CreatedAt,
+		UpdatedAt:   book.UpdatedAt,
+		DeletedAt:   book.DeletedAt,
+	}
 }
