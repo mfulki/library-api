@@ -36,16 +36,19 @@ func (h *AuthorHandler) GetSomeAuthor(ctx context.Context, in *pb.Ids) (*pb.Auth
 	return resp, nil
 
 }
-func (h *AuthorHandler) GetAuthorsBook(ctx context.Context, in *pb.Ids) (*pb.AuthorsBooksMap, error) {
-	res, err := h.authorUsecase.GetAuthorsBook(ctx, in.GetId())
+func (h *AuthorHandler) GetAllAuthorsBook(ctx context.Context, in *pb.Empty) (*pb.AuthorsBooksMap, error) {
+	res, err := h.authorUsecase.GetAllAuthorsBook(ctx)
 	if err != nil {
 		return nil, err
 	}
 	return response.NewAuthorsBooksResp(res), nil
 }
-
-func (h *AuthorHandler) GetAuthor(xtx context.Context, in *pb.Id) (*pb.Author, error) {
-	return nil, nil
+func (h *AuthorHandler) GetSomeAuthorsBook(ctx context.Context, in *pb.Ids) (*pb.AuthorsBooksMap, error) {
+	res, err := h.authorUsecase.GetSomeAuthorsBook(ctx, in.GetId())
+	if err != nil {
+		return nil, err
+	}
+	return response.NewAuthorsBooksResp(res), nil
 }
 
 func (h *AuthorHandler) InsertAuthor(ctx context.Context, in *pb.Author) (*pb.Message, error) {

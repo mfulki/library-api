@@ -1,5 +1,5 @@
 syntax = "proto3";
-package go_grpc;
+package book;
 
 option go_package="internal/pb/books";
 
@@ -9,8 +9,6 @@ service BookService{
     rpc PostBorrows(Ids)returns(StockJournals);
     rpc PostReturns(Ids)returns(StockJournals);
 }
-
-message Empty{};
 
 message Books{
     repeated Book book=1;
@@ -23,9 +21,10 @@ message Book{
     repeated uint64 author_id=5;
     repeated uint64 category_id=6;
     repeated BookItem book_item =7;
-    string created_at =8;
-    string updated_at=9;
-    string deleted_at=10;
+    uint64 stock=8;
+    string created_at =9;
+    string updated_at=10;
+    string deleted_at=11;
 }
 
 message BookItem{
@@ -47,13 +46,15 @@ message StockJournals{
     repeated StockJournal stock_journal=1;
 }
 
-message Id {
-    uint64 Id=1;
-}
-message Ids {
-    repeated Id id=1;
-}
-
 message Status{
     string status=1;
 }
+message Id {
+    uint64 Id=1;
+}
+
+message Ids {
+    repeated uint64 id=1;
+}
+
+message Empty{};

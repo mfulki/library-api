@@ -1,10 +1,9 @@
 package handler
 
 import (
-	"log"
-
 	"user-service/internal/constant"
 	"user-service/internal/dto"
+	pbAuthor "user-service/internal/pb/author"
 	pb "user-service/internal/pb/books"
 
 	"github.com/gofiber/fiber/v2"
@@ -12,12 +11,14 @@ import (
 )
 
 type BookHandler struct {
-	bookService pb.BookServiceClient
+	bookService   pb.BookServiceClient
+	authorService pbAuthor.AuthorServiceClient
 }
 
-func NewBookHandler(bookService pb.BookServiceClient) *BookHandler {
+func NewBookHandler(bookService pb.BookServiceClient, authorService pbAuthor.AuthorServiceClient) *BookHandler {
 	return &BookHandler{
-		bookService: bookService,
+		bookService:   bookService,
+		authorService: authorService,
 	}
 }
 
@@ -27,7 +28,7 @@ func (h *BookHandler) GetAllBook(ctx *fiber.Ctx) error {
 		logrus.Errorf("could not request: %v", err)
 		return err
 	}
-	log.Printf("Response: %s", response)
+
 
 	return ctx.Status(fiber.StatusOK).JSON(dto.Response{
 		Message: constant.DataRetrievedMsg,

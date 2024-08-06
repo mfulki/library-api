@@ -8,6 +8,7 @@ import (
 	"user-service/internal/domain/example"
 	"user-service/internal/handler"
 	"user-service/internal/middleware"
+	pbAuthor "user-service/internal/pb/author"
 	pb "user-service/internal/pb/books"
 	"user-service/internal/repository"
 	"user-service/internal/usecase"
@@ -17,18 +18,20 @@ import (
 )
 
 type server struct {
-	db          transaction.Transaction
-	transactor  transaction.Transactor
-	fileLogger  llog.Logger
-	bookService pb.BookServiceClient
+	db            transaction.Transaction
+	transactor    transaction.Transactor
+	fileLogger    llog.Logger
+	bookService   pb.BookServiceClient
+	authorService pbAuthor.AuthorServiceClient
 }
 
 func New(db *sql.DB, fileLogger *llog.FileLogger, grpcConnection *client.GRPCClient) *server {
 	return &server{
-		db:          transaction.NewTransaction(db),
-		transactor:  transaction.NewTransactor(db),
-		fileLogger:  fileLogger,
-		bookService: pb.NewBookServiceClient(grpcConnection.BookService),
+		db:            transaction.NewTransaction(db),
+		transactor:    transaction.NewTransactor(db),
+		fileLogger:    fileLogger,
+		bookService:   pb.NewBookServiceClient(grpcConnection.BookService),
+		authorService: pbAuthor.NewAuthorServiceClient(grpcConnection.AuthorService),
 	}
 }
 
@@ -42,7 +45,8 @@ func (s server) Setup() *fiber.App {
 	userRepository := repository.NewUserRepository(s.db)
 	authUsecase := usecase.NewAuthUsecase(userRepository)
 	authHandler := handler.NewAuthHandler(authUsecase)
-	bookHandler := handler.NewBookHandler(s.bookService)
+	authorHandle := handler.NewAuthorHandler(s.authorService)
+	bookHandler := handler.NewBookHandler(s.bookService, s.authorService)
 
 	return InitRouter(&handlers{
 		ExampleHandler: exampleHandler,
@@ -50,5 +54,6 @@ func (s server) Setup() *fiber.App {
 		CustomHandler:  customHandler,
 		Middleware:     middleware,
 		BookHandler:    bookHandler,
+		AuthorHandler:  authorHandle,
 	})
 }

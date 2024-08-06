@@ -17,7 +17,8 @@ type AuthorRepository interface {
 	InsertAuthor(ctx context.Context, authors []entity.Author) error
 	GetSomeAuthor(ctx context.Context, ids []uint64) ([]entity.Author, error)
 	DeleteOneAuthor(ctx context.Context, id uint64) error
-	GetAuthorsBook(ctx context.Context, ids []uint64) (map[uint64]entity.AuthorsBooksJson, error)
+	GetAllAuthorsBook(ctx context.Context) (map[uint64]entity.AuthorsBooksJson, error)
+	GetSomeAuthorsBook(ctx context.Context, ids []uint64) (map[uint64]entity.AuthorsBooksJson, error)
 }
 
 type authorRepositoryImpl struct {
@@ -148,8 +149,7 @@ func (r *authorRepositoryImpl) DeleteOneAuthor(ctx context.Context, id uint64) e
 
 	return nil
 }
-
-func (r *authorRepositoryImpl) GetAuthorsBook(ctx context.Context, ids []uint64) (map[uint64]entity.AuthorsBooksJson, error) {
+func (r *authorRepositoryImpl) GetAllAuthorsBook(ctx context.Context) (map[uint64]entity.AuthorsBooksJson, error) {
 	q := `select book_id,jsonb_AGG(Distinct
         jsonb_build_object(
                 'author_id', a.author_id ,
@@ -158,6 +158,41 @@ func (r *authorRepositoryImpl) GetAuthorsBook(ctx context.Context, ids []uint64)
         left join authors a on a.author_id=b.author_id 
         group by b.book_id;`
 	rows, err := r.db.QueryContext(ctx, q)
+	if err != nil {
+		logrus.Error(err)
+		return nil, err
+	}
+
+	defer rows.Close()
+	var authorsBooks entity.AuthorsBooksJson
+	results := make(map[uint64]entity.AuthorsBooksJson, 0)
+	for rows.Next() {
+		var bookId uint64
+		if err := rows.Scan(&bookId, &authorsBooks); err != nil {
+			logrus.Error(err)
+			return nil, err
+		}
+		results[bookId] = authorsBooks
+	}
+
+	if err := rows.Err(); err != nil {
+		logrus.Error(err)
+		return nil, err
+	}
+
+	return results, nil
+}
+
+func (r *authorRepositoryImpl) GetSomeAuthorsBook(ctx context.Context, ids []uint64) (map[uint64]entity.AuthorsBooksJson, error) {
+	q := `select book_id,jsonb_AGG(Distinct
+        jsonb_build_object(
+                'author_id', a.author_id ,
+                'author_name', a.author_name))
+        AS book_item_statuses from author_books b 
+        left join authors a on a.author_id=b.author_id 
+		WHERE book_id = ANY($1)
+        group by b.book_id;`
+	rows, err := r.db.QueryContext(ctx, q, ids)
 	if err != nil {
 		logrus.Error(err)
 		return nil, err

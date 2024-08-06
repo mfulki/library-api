@@ -12,7 +12,8 @@ type AuthorUsecase interface {
 	InsertAuthor(ctx context.Context, authors []entity.Author) error
 	GetSomeAuthor(ctx context.Context, ids []uint64) ([]entity.Author, error)
 	DeleteOneAuthor(ctx context.Context, id uint64) error
-	GetAuthorsBook(ctx context.Context, ids []uint64) (map[uint64]entity.AuthorsBooksJson, error)
+	GetAllAuthorsBook(ctx context.Context) (map[uint64]entity.AuthorsBooksJson, error)
+	GetSomeAuthorsBook(ctx context.Context, ids []uint64) (map[uint64]entity.AuthorsBooksJson, error)
 }
 
 type authorUsecaseImpl struct {
@@ -44,6 +45,9 @@ func (u *authorUsecaseImpl) GetSomeAuthor(ctx context.Context, ids []uint64) ([]
 func (u *authorUsecaseImpl) DeleteOneAuthor(ctx context.Context, id uint64) error {
 	return u.authorRepository.DeleteOneAuthor(ctx, id)
 }
-func (u *authorUsecaseImpl) GetAuthorsBook(ctx context.Context, ids []uint64) (map[uint64]entity.AuthorsBooksJson, error){
-	return u.authorRepository.GetAuthorsBook(ctx,ids)
+func (u *authorUsecaseImpl) GetAllAuthorsBook(ctx context.Context) (map[uint64]entity.AuthorsBooksJson, error) {
+	return u.authorRepository.GetAllAuthorsBook(ctx)
+}
+func (u *authorUsecaseImpl) GetSomeAuthorsBook(ctx context.Context, ids []uint64) (map[uint64]entity.AuthorsBooksJson, error) {
+	return u.authorRepository.GetSomeAuthorsBook(ctx, ids)
 }

@@ -51,8 +51,9 @@ message StockJournals{
 message Id {
     uint64 Id=1;
 }
+
 message Ids {
-    repeated Id id=1;
+    repeated uint64 id=1;
 }
 
 message Status{
