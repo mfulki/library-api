@@ -19,14 +19,22 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	AuthorService_GetAuthors_FullMethodName = "/author.AuthorService/GetAuthors"
+	AuthorService_GetAuthors_FullMethodName      = "/author.AuthorService/GetAuthors"
+	AuthorService_GetSomeAuthor_FullMethodName   = "/author.AuthorService/GetSomeAuthor"
+	AuthorService_GetAuthor_FullMethodName       = "/author.AuthorService/GetAuthor"
+	AuthorService_InsertAuthor_FullMethodName    = "/author.AuthorService/InsertAuthor"
+	AuthorService_DeleteOneAuthor_FullMethodName = "/author.AuthorService/DeleteOneAuthor"
 )
 
 // AuthorServiceClient is the client API for AuthorService service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type AuthorServiceClient interface {
-	GetAuthors(ctx context.Context, in *Ids, opts ...grpc.CallOption) (*Authors, error)
+	GetAuthors(ctx context.Context, in *Empty, opts ...grpc.CallOption) (*Authors, error)
+	GetSomeAuthor(ctx context.Context, in *Ids, opts ...grpc.CallOption) (*Authors, error)
+	GetAuthor(ctx context.Context, in *Id, opts ...grpc.CallOption) (*Author, error)
+	InsertAuthor(ctx context.Context, in *Author, opts ...grpc.CallOption) (*Message, error)
+	DeleteOneAuthor(ctx context.Context, in *Id, opts ...grpc.CallOption) (*Message, error)
 }
 
 type authorServiceClient struct {
@@ -37,10 +45,50 @@ func NewAuthorServiceClient(cc grpc.ClientConnInterface) AuthorServiceClient {
 	return &authorServiceClient{cc}
 }
 
-func (c *authorServiceClient) GetAuthors(ctx context.Context, in *Ids, opts ...grpc.CallOption) (*Authors, error) {
+func (c *authorServiceClient) GetAuthors(ctx context.Context, in *Empty, opts ...grpc.CallOption) (*Authors, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(Authors)
 	err := c.cc.Invoke(ctx, AuthorService_GetAuthors_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *authorServiceClient) GetSomeAuthor(ctx context.Context, in *Ids, opts ...grpc.CallOption) (*Authors, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(Authors)
+	err := c.cc.Invoke(ctx, AuthorService_GetSomeAuthor_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *authorServiceClient) GetAuthor(ctx context.Context, in *Id, opts ...grpc.CallOption) (*Author, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(Author)
+	err := c.cc.Invoke(ctx, AuthorService_GetAuthor_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *authorServiceClient) InsertAuthor(ctx context.Context, in *Author, opts ...grpc.CallOption) (*Message, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(Message)
+	err := c.cc.Invoke(ctx, AuthorService_InsertAuthor_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *authorServiceClient) DeleteOneAuthor(ctx context.Context, in *Id, opts ...grpc.CallOption) (*Message, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(Message)
+	err := c.cc.Invoke(ctx, AuthorService_DeleteOneAuthor_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -51,7 +99,11 @@ func (c *authorServiceClient) GetAuthors(ctx context.Context, in *Ids, opts ...g
 // All implementations must embed UnimplementedAuthorServiceServer
 // for forward compatibility.
 type AuthorServiceServer interface {
-	GetAuthors(context.Context, *Ids) (*Authors, error)
+	GetAuthors(context.Context, *Empty) (*Authors, error)
+	GetSomeAuthor(context.Context, *Ids) (*Authors, error)
+	GetAuthor(context.Context, *Id) (*Author, error)
+	InsertAuthor(context.Context, *Author) (*Message, error)
+	DeleteOneAuthor(context.Context, *Id) (*Message, error)
 	mustEmbedUnimplementedAuthorServiceServer()
 }
 
@@ -62,8 +114,20 @@ type AuthorServiceServer interface {
 // pointer dereference when methods are called.
 type UnimplementedAuthorServiceServer struct{}
 
-func (UnimplementedAuthorServiceServer) GetAuthors(context.Context, *Ids) (*Authors, error) {
+func (UnimplementedAuthorServiceServer) GetAuthors(context.Context, *Empty) (*Authors, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetAuthors not implemented")
+}
+func (UnimplementedAuthorServiceServer) GetSomeAuthor(context.Context, *Ids) (*Authors, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetSomeAuthor not implemented")
+}
+func (UnimplementedAuthorServiceServer) GetAuthor(context.Context, *Id) (*Author, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetAuthor not implemented")
+}
+func (UnimplementedAuthorServiceServer) InsertAuthor(context.Context, *Author) (*Message, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method InsertAuthor not implemented")
+}
+func (UnimplementedAuthorServiceServer) DeleteOneAuthor(context.Context, *Id) (*Message, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DeleteOneAuthor not implemented")
 }
 func (UnimplementedAuthorServiceServer) mustEmbedUnimplementedAuthorServiceServer() {}
 func (UnimplementedAuthorServiceServer) testEmbeddedByValue()                       {}
@@ -87,7 +151,7 @@ func RegisterAuthorServiceServer(s grpc.ServiceRegistrar, srv AuthorServiceServe
 }
 
 func _AuthorService_GetAuthors_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(Ids)
+	in := new(Empty)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -99,7 +163,79 @@ func _AuthorService_GetAuthors_Handler(srv interface{}, ctx context.Context, dec
 		FullMethod: AuthorService_GetAuthors_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(AuthorServiceServer).GetAuthors(ctx, req.(*Ids))
+		return srv.(AuthorServiceServer).GetAuthors(ctx, req.(*Empty))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _AuthorService_GetSomeAuthor_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(Ids)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AuthorServiceServer).GetSomeAuthor(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AuthorService_GetSomeAuthor_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AuthorServiceServer).GetSomeAuthor(ctx, req.(*Ids))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _AuthorService_GetAuthor_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(Id)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AuthorServiceServer).GetAuthor(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AuthorService_GetAuthor_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AuthorServiceServer).GetAuthor(ctx, req.(*Id))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _AuthorService_InsertAuthor_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(Author)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AuthorServiceServer).InsertAuthor(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AuthorService_InsertAuthor_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AuthorServiceServer).InsertAuthor(ctx, req.(*Author))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _AuthorService_DeleteOneAuthor_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(Id)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AuthorServiceServer).DeleteOneAuthor(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AuthorService_DeleteOneAuthor_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AuthorServiceServer).DeleteOneAuthor(ctx, req.(*Id))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -114,6 +250,22 @@ var AuthorService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetAuthors",
 			Handler:    _AuthorService_GetAuthors_Handler,
+		},
+		{
+			MethodName: "GetSomeAuthor",
+			Handler:    _AuthorService_GetSomeAuthor_Handler,
+		},
+		{
+			MethodName: "GetAuthor",
+			Handler:    _AuthorService_GetAuthor_Handler,
+		},
+		{
+			MethodName: "InsertAuthor",
+			Handler:    _AuthorService_InsertAuthor_Handler,
+		},
+		{
+			MethodName: "DeleteOneAuthor",
+			Handler:    _AuthorService_DeleteOneAuthor_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

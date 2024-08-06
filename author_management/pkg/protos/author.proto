@@ -4,9 +4,16 @@ package author;
 option go_package="internal/pb/author";
 
 service AuthorService{
-    rpc GetAuthors(Ids)returns(Authors);
+    rpc GetAuthors(Empty)returns(Authors);
+    rpc GetSomeAuthor(Ids)returns(Authors);
+    rpc GetAuthorsBook(Ids)returns;
+    rpc GetAuthor(Id)returns(Author);
+    rpc InsertAuthor(Author)returns(Message);
+    rpc DeleteOneAuthor(Id) returns (Message);
 }
-
+message AuthorsBook{
+    map<uint64, repeated uint64> authors = 1;
+}
 message Authors{
     repeated Author author=1;
 }
@@ -24,7 +31,11 @@ message Id {
 }
 
 message Ids {
-    repeated Id id=1;
+    repeated uint64 id=1;
 }
 
-message Empty{};
+message Empty{}
+
+message Message{
+    string message=1;
+}
