@@ -35,7 +35,10 @@ func New(db *sql.DB, fileLogger *llog.FileLogger, grpcServer *grpc.Server) *serv
 
 func (s server) Setup() *grpc.Server {
 	bookRepository := repository.NewBookRepository(s.db)
-	bookUsecase := usecase.NewBookUsecase(bookRepository)
+	bookItemRepository := repository.NewBookItemRepository(s.db)
+	stockJournalRepository := repository.NewStockJournalRepository(s.db)
+
+	bookUsecase := usecase.NewBookUsecase(bookRepository, bookItemRepository, s.transactor, stockJournalRepository)
 	bookHandler := handler.NewBookHandler(bookUsecase)
 	pb.RegisterBookServiceServer(s.grpcServer, bookHandler)
 	return s.grpcServer
