@@ -10,7 +10,7 @@ type BooksResponse struct {
 	Title       string                `json:"title,omitempty"`
 	Isbn        string                `json:"isbn,omitempty"`
 	Description string                `json:"description,omitempty"`
-	Authors     []*author.AuthorsBook `json:"author",omitempty`
+	Authors     []*author.AuthorsBook `json:"author,omitempty"`
 	BookItem    []*pb.BookItem        `json:"book_item,omitempty"`
 	Stock       uint64                `json:"stock_available,omitempty"`
 	CreatedAt   string                `json:"created_at,omitempty"`
