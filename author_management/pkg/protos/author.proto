@@ -6,13 +6,20 @@ option go_package="internal/pb/author";
 service AuthorService{
     rpc GetAuthors(Empty)returns(Authors);
     rpc GetSomeAuthor(Ids)returns(Authors);
-    rpc GetAuthorsBook(Ids)returns;
+    rpc GetAuthorsBook(Ids)returns(AuthorsBooksMap);
     rpc GetAuthor(Id)returns(Author);
     rpc InsertAuthor(Author)returns(Message);
     rpc DeleteOneAuthor(Id) returns (Message);
 }
+message AuthorsBooksMap{
+    map<uint64, AuthorsBooks> author_books_map = 1;
+}
 message AuthorsBook{
-    map<uint64, repeated uint64> authors = 1;
+    uint64 id=1;
+    string name=2;
+}
+message AuthorsBooks{
+    repeated AuthorsBook author_book_list=1;
 }
 message Authors{
     repeated Author author=1;

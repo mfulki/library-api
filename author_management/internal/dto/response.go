@@ -5,3 +5,5 @@ type Response struct {
 	Data    any               `json:"data,omitempty"`
 	Errors  map[string]string `json:"errors,omitempty"`
 }
+
+
