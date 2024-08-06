@@ -23,7 +23,6 @@ message Categories{
 }
 
 message BookCategory{
-    uint64 id =1;
     uint64 category_id=3;
     string category_name=4;
     string created_at=5;
@@ -35,7 +34,7 @@ message BookCategoriesMap{
 }
 
 message BookCategories{
-    repeated BookCategories book_categories=1;
+    repeated BookCategory book_categories_list=1;
 }
 message Id {
     uint64 Id=1;

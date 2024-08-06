@@ -1,8 +1,10 @@
 package handler
 
 import (
+	"category-service/internal/dto/response"
 	pb "category-service/internal/pb/categories"
 	"category-service/internal/usecase"
+	"context"
 )
 
 type CategoryHandler struct {
@@ -16,4 +18,10 @@ func NewCategoryHandler(categoryUsecase usecase.CategoryUsecase) *CategoryHandle
 	}
 }
 
-
+func (h *CategoryHandler) GetSomeBookCategories(ctx context.Context, in *pb.Ids) (*pb.BookCategoriesMap, error) {
+	res, err := h.categoryUsecase.GetSomeBookCategoriesGetSomeBookCategories(ctx, in.GetId())
+	if err != nil {
+		return nil, err
+	}
+	return response.NewBookCategoryResp(res), nil
+}
