@@ -25,3 +25,11 @@ func (h *BookHandler) GetBooks(ctx context.Context, in *pb.Empty) (*pb.Books, er
 
 	return response.NewGetAllBookResponse(books), nil
 }
+func (h *BookHandler) GetBook(ctx context.Context, in *pb.Id) (*pb.Book, error) {
+	book, err := h.bookUsecase.GetBook(ctx,in.GetId())
+	if err != nil {
+		return nil, err
+	}
+
+	return response.NewGetBookResponse(book), nil
+}

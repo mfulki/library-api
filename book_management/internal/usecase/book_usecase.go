@@ -8,6 +8,7 @@ import (
 
 type BookUsecase interface {
 	GetAllBook(ctx context.Context) (*entity.Books, error)
+	GetBook(ctx context.Context, id uint64) (*entity.Book, error)
 }
 
 type bookUsecaseImpl struct {
@@ -26,6 +27,13 @@ func (u *bookUsecaseImpl) GetAllBook(ctx context.Context) (*entity.Books, error)
 		return nil, err
 	}
 	return books, nil
+}
+func (u *bookUsecaseImpl) GetBook(ctx context.Context, id uint64) (*entity.Book, error) {
+	book, err := u.bookRepository.GetOneBook(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+	return book, nil
 }
 func (u *bookUsecaseImpl) UserBorrowBook() {
 
