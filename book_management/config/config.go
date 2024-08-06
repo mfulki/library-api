@@ -14,12 +14,16 @@ var (
 	App  = new(env.AppConfig)
 	DB   = new(env.DBConfig)
 	Hash = new(env.HashConfig)
+	Jwt  = new(env.JwtConfig)
+	GRPC = new(env.GRPCConfig)
 )
 
 var configs = []Config{
 	App,
 	DB,
 	Hash,
+	Jwt,
+	GRPC,
 }
 
 func Load() {

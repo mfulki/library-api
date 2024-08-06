@@ -5,6 +5,7 @@ go 1.22.3
 require (
 	github.com/go-playground/validator/v10 v10.21.0
 	github.com/gofiber/fiber/v2 v2.52.4
+	github.com/golang-jwt/jwt/v5 v5.2.1
 	github.com/jackc/pgx/v5 v5.6.0
 	github.com/joho/godotenv v1.5.1
 	github.com/lib/pq v1.10.9
