@@ -6,8 +6,8 @@ option go_package="internal/pb/books";
 service BookService{
     rpc GetBooks(Empty) returns (Books);
     rpc GetBook(Id) returns(Book);
-    rpc PostBorrows(Ids)returns(StockJournals);
-    rpc PostReturns(Ids)returns(StockJournals);
+    rpc PostBorrows(Ids)returns(Message);
+    rpc PostReturns(Ids)returns(Message);
 }
 
 message Empty{};
@@ -59,4 +59,7 @@ message Ids {
 
 message Status{
     string status=1;
+}
+message Message{
+    string message=1;
 }

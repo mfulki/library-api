@@ -8,6 +8,8 @@ import (
 	pbAuthor "user-service/internal/pb/author"
 	pb "user-service/internal/pb/books"
 	pbCategory "user-service/internal/pb/categories"
+	"user-service/pkg/utils"
+	"user-service/pkg/validate"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/sirupsen/logrus"
@@ -56,9 +58,10 @@ func (h *BookHandler) GetAllBook(ctx *fiber.Ctx) error {
 func (h *BookHandler) GetOneBook(ctx *fiber.Ctx) error {
 	param := new(request.BookId)
 	ctx.ParamsParser(param)
+	context := utils.GrpcSendJWT(ctx.Context())
 
 	ids := []uint64{param.Id}
-	respBook, err := h.bookService.GetBook(ctx.Context(), &pb.Id{Id: param.Id})
+	respBook, err := h.bookService.GetBook(context, &pb.Id{Id: param.Id})
 	if err != nil {
 		logrus.Errorf("could not request: %v", err)
 		return err
@@ -77,5 +80,41 @@ func (h *BookHandler) GetOneBook(ctx *fiber.Ctx) error {
 	return ctx.Status(fiber.StatusOK).JSON(dto.Response{
 		Message: constant.DataRetrievedMsg,
 		Data:    response.GetBookResp(respBook, respAuthor, respCategory),
+	})
+}
+
+func (h *BookHandler) PostBorrow(ctx *fiber.Ctx) error {
+	context := utils.GrpcSendJWT(ctx.Context())
+
+	body := new(request.BookIds)
+	if err := validate.BodyJSON(ctx, body); err != nil {
+		return err
+	}
+	result, err := h.bookService.PostBorrows(context, &pb.Ids{Id: body.Ids})
+	if err != nil {
+		logrus.Errorf("could not request: %v", err)
+		return err
+	}
+	return ctx.Status(fiber.StatusOK).JSON(dto.Response{
+		Message: constant.DataCreatedMsg,
+		Data:    result.Message,
+	})
+}
+
+func (h *BookHandler) PostReturn(ctx *fiber.Ctx) error {
+	context := utils.GrpcSendJWT(ctx.Context())
+
+	body := new(request.BookIds)
+	if err := validate.BodyJSON(ctx, body); err != nil {
+		return err
+	}
+	result, err := h.bookService.PostReturns(context, &pb.Ids{Id: body.Ids})
+	if err != nil {
+		logrus.Errorf("could not request: %v", err)
+		return err
+	}
+	return ctx.Status(fiber.StatusOK).JSON(dto.Response{
+		Message: constant.DataCreatedMsg,
+		Data:    result.Message,
 	})
 }

@@ -34,6 +34,7 @@ func (m *Middleware) Authentication(jwtFunc func(signed string) (jwt.MapClaims, 
 		}
 
 		ctx.Locals(constant.UserContext, userDataMap)
+		ctx.Locals("authorization",authorization)
 		return ctx.Next()
 	}
 }
@@ -43,7 +44,7 @@ func (m *Middleware) UserAuth() fiber.Handler {
 		if !ok {
 			return nil, false
 		}
-
+		
 		user["role"] = "user"
 		return user, true
 	})

@@ -1,6 +1,8 @@
 package utils
 
 import (
+	"context"
+	"fmt"
 	"net/http"
 	"strings"
 	"time"
@@ -10,6 +12,7 @@ import (
 
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/sirupsen/logrus"
+	"google.golang.org/grpc/metadata"
 )
 
 type JWTClaims struct {
@@ -121,4 +124,12 @@ func getActorFromJwt(req *http.Request, jwtFunc func(string) (jwt.MapClaims, boo
 	}
 
 	return uint(id), email
+}
+func GrpcSendJWT(ctx context.Context) context.Context {
+	token := ctx.Value("authorization").(string)
+	fmt.Print(token)
+	md := metadata.New(map[string]string{"authorization": token})
+	context := metadata.NewOutgoingContext(context.Background(), md)
+
+	return context
 }

@@ -29,16 +29,25 @@ func InitRouter(h *handlers) *fiber.App {
 	api := router.Group("/api")
 	api.Use(h.Middleware.RequestID)
 	api.Use(h.Middleware.LoggerInfo)
+
 	auth := api.Group("/auth")
-	api.Use(h.Middleware.RequestID)
-	api.Use(h.Middleware.LoggerInfo)
 	auth.Post("/login", h.AuthHandler.Login)
 	auth.Post("/register", h.AuthHandler.Register)
+
 	book := api.Group("/book")
 	book.Get("/", h.BookHandler.GetAllBook)
+	book.Use(h.Middleware.UserAuth())
 	book.Get("/:id", h.BookHandler.GetOneBook)
+
+	user := api.Group("/")
+	user.Use(h.Middleware.UserAuth())
+	user.Post("/borrow", h.BookHandler.PostBorrow)
+	user.Post("/return", h.BookHandler.PostReturn)
+
 	author := api.Group("/author")
 	author.Get("/some", h.AuthorHandler.GetSomeAuthorsBook)
+	author.Get("/", h.AuthorHandler.GetAllAuthorsBook)
+
 	h.ExampleHandler.RegisterRoute(api)
 
 	router.Use(h.CustomHandler.NotFound)
