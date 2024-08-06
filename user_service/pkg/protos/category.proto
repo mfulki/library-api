@@ -1,0 +1,49 @@
+syntax = "proto3";
+package category;
+
+option go_package="internal/pb/categories";
+
+service CategoryService{
+    rpc GetSomeBookCategories(Ids) returns (BookCategoriesMap);
+    rpc GetAllCategories(Empty) returns (BookCategoriesMap);
+    rpc GetCategory(Id) returns(Category);
+}
+
+message Empty{};
+
+message Category{
+    uint64 id =1;
+    string category_name=2;
+    string created_at=3;
+    string updated_at=4;
+    string deleted_at=5;
+}
+message Categories{
+    repeated Category category=1;
+}
+
+message BookCategory{
+    uint64 category_id=3;
+    string category_name=4;
+    string created_at=5;
+    string updated_at=6;
+    string deleted_at=7;
+}
+message BookCategoriesMap{
+    map<uint64, BookCategories> book_categories_map=1;
+}
+
+message BookCategories{
+    repeated BookCategory book_categories_list=1;
+}
+message Id {
+    uint64 Id=1;
+}
+
+message Ids {
+    repeated uint64 id=1;
+}
+
+message Status{
+    string status=1;
+}

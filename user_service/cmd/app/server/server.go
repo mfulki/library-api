@@ -10,6 +10,7 @@ import (
 	"user-service/internal/middleware"
 	pbAuthor "user-service/internal/pb/author"
 	pb "user-service/internal/pb/books"
+	pbCategory"user-service/internal/pb/categories"
 	"user-service/internal/repository"
 	"user-service/internal/usecase"
 	"user-service/pkg/llog"
@@ -23,6 +24,8 @@ type server struct {
 	fileLogger    llog.Logger
 	bookService   pb.BookServiceClient
 	authorService pbAuthor.AuthorServiceClient
+	categoryService pbCategory.CategoryServiceClient
+
 }
 
 func New(db *sql.DB, fileLogger *llog.FileLogger, grpcConnection *client.GRPCClient) *server {
@@ -32,6 +35,7 @@ func New(db *sql.DB, fileLogger *llog.FileLogger, grpcConnection *client.GRPCCli
 		fileLogger:    fileLogger,
 		bookService:   pb.NewBookServiceClient(grpcConnection.BookService),
 		authorService: pbAuthor.NewAuthorServiceClient(grpcConnection.AuthorService),
+		categoryService: pbCategory.NewCategoryServiceClient(grpcConnection.CategoryService),
 	}
 }
 
@@ -46,7 +50,7 @@ func (s server) Setup() *fiber.App {
 	authUsecase := usecase.NewAuthUsecase(userRepository)
 	authHandler := handler.NewAuthHandler(authUsecase)
 	authorHandle := handler.NewAuthorHandler(s.authorService)
-	bookHandler := handler.NewBookHandler(s.bookService, s.authorService)
+	bookHandler := handler.NewBookHandler(s.bookService, s.authorService,s.categoryService)
 
 	return InitRouter(&handlers{
 		ExampleHandler: exampleHandler,

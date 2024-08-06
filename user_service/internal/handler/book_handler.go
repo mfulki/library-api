@@ -6,20 +6,26 @@ import (
 	"user-service/internal/dto/response"
 	pbAuthor "user-service/internal/pb/author"
 	pb "user-service/internal/pb/books"
+	pbCategory "user-service/internal/pb/categories"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/sirupsen/logrus"
 )
 
 type BookHandler struct {
-	bookService   pb.BookServiceClient
-	authorService pbAuthor.AuthorServiceClient
+	bookService     pb.BookServiceClient
+	authorService   pbAuthor.AuthorServiceClient
+	categoryService pbCategory.CategoryServiceClient
 }
 
-func NewBookHandler(bookService pb.BookServiceClient, authorService pbAuthor.AuthorServiceClient) *BookHandler {
+func NewBookHandler(bookService pb.BookServiceClient,
+	authorService pbAuthor.AuthorServiceClient,
+	categoryService pbCategory.CategoryServiceClient,
+) *BookHandler {
 	return &BookHandler{
-		bookService:   bookService,
-		authorService: authorService,
+		bookService:     bookService,
+		authorService:   authorService,
+		categoryService: categoryService,
 	}
 }
 
@@ -29,14 +35,19 @@ func (h *BookHandler) GetAllBook(ctx *fiber.Ctx) error {
 		logrus.Errorf("could not request: %v", err)
 		return err
 	}
-	respAuthor,err:=h.authorService.GetSomeAuthorsBook(ctx.Context(),&pbAuthor.Ids{Id: respBook.BookIds})
+	respAuthor, err := h.authorService.GetSomeAuthorsBook(ctx.Context(), &pbAuthor.Ids{Id: respBook.BookIds})
 	if err != nil {
 		logrus.Errorf("could not request: %v", err)
 		return err
 	}
-	
+	respCategory, err := h.categoryService.GetSomeBookCategories(ctx.Context(), &pbCategory.Ids{Id: respBook.BookIds})
+	if err != nil {
+		logrus.Errorf("could not request: %v", err)
+		return err
+	}
+
 	return ctx.Status(fiber.StatusOK).JSON(dto.Response{
 		Message: constant.DataRetrievedMsg,
-		Data:    response.GetBookResp(respBook,respAuthor),
+		Data:    response.GetBookResp(respBook, respAuthor, respCategory),
 	})
 }

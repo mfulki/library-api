@@ -17,6 +17,7 @@ type handlers struct {
 	AuthHandler    *handler.AuthHandler
 	BookHandler    *handler.BookHandler
 	AuthorHandler  *handler.AuthorHandler
+	
 }
 
 func InitRouter(h *handlers) *fiber.App {
