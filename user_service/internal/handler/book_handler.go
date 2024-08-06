@@ -3,6 +3,7 @@ package handler
 import (
 	"user-service/internal/constant"
 	"user-service/internal/dto"
+	"user-service/internal/dto/response"
 	pbAuthor "user-service/internal/pb/author"
 	pb "user-service/internal/pb/books"
 
@@ -23,15 +24,19 @@ func NewBookHandler(bookService pb.BookServiceClient, authorService pbAuthor.Aut
 }
 
 func (h *BookHandler) GetAllBook(ctx *fiber.Ctx) error {
-	response, err := h.bookService.GetBooks(ctx.Context(), &pb.Empty{})
+	respBook, err := h.bookService.GetBooks(ctx.Context(), &pb.Empty{})
 	if err != nil {
 		logrus.Errorf("could not request: %v", err)
 		return err
 	}
-
-
+	respAuthor,err:=h.authorService.GetSomeAuthorsBook(ctx.Context(),&pbAuthor.Ids{Id: respBook.BookIds})
+	if err != nil {
+		logrus.Errorf("could not request: %v", err)
+		return err
+	}
+	
 	return ctx.Status(fiber.StatusOK).JSON(dto.Response{
 		Message: constant.DataRetrievedMsg,
-		Data:    response,
+		Data:    response.GetBookResp(respBook,respAuthor),
 	})
 }

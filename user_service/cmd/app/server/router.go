@@ -37,7 +37,7 @@ func InitRouter(h *handlers) *fiber.App {
 	book := api.Group("/book")
 	book.Get("/", h.BookHandler.GetAllBook)
 	author := api.Group("/author")
-	author.Get("/some", h.AuthorHandler.GetSomeAuthor)
+	author.Get("/some", h.AuthorHandler.GetSomeAuthorsBook)
 	h.ExampleHandler.RegisterRoute(api)
 
 	router.Use(h.CustomHandler.NotFound)

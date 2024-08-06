@@ -20,12 +20,12 @@ func NewAuthorHandler(authorService pb.AuthorServiceClient) *AuthorHandler {
 	}
 }
 
-func (h *AuthorHandler) GetSomeAuthor(ctx *fiber.Ctx) error {
+func (h *AuthorHandler) GetSomeAuthorsBook(ctx *fiber.Ctx) error {
 	req := new(request.AuthorIds)
 	if err := ctx.QueryParser(req); err != nil {
 		return err
 	}
-	response, err := h.authorService.GetAuthorsBook(ctx.Context(), &pb.Ids{Id: req.Ids})
+	response, err := h.authorService.GetSomeAuthorsBook(ctx.Context(), &pb.Ids{Id: req.Ids})
 	if err != nil {
 		logrus.Errorf("could not request: %v", err)
 		return err
@@ -36,3 +36,21 @@ func (h *AuthorHandler) GetSomeAuthor(ctx *fiber.Ctx) error {
 		Data:    response,
 	})
 }
+
+func (h *AuthorHandler) GetAllAuthorsBook(ctx *fiber.Ctx) error {
+	req := new(request.AuthorIds)
+	if err := ctx.QueryParser(req); err != nil {
+		return err
+	}
+	response, err := h.authorService.GetAllAuthorsBook(ctx.Context(), &pb.Empty{})
+	if err != nil {
+		logrus.Errorf("could not request: %v", err)
+		return err
+	}
+
+	return ctx.Status(fiber.StatusOK).JSON(dto.Response{
+		Message: constant.DataRetrievedMsg,
+		Data:    response,
+	})
+}
+
