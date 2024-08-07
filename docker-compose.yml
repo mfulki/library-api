@@ -1,0 +1,112 @@
+services:
+  user_service:
+    image: mfulki/user-service:latest
+    ports:
+      - "8080:8080"
+    depends_on:
+      - user-db
+      - author_management
+      - book_management
+      - category_service
+    env_file:
+      - ./user_service/.env
+    networks:
+      - internal
+
+  author_management:
+    image: mfulki/author-service:latest
+    ports:
+      - "50052:50052"
+    depends_on:
+      - author-db
+    env_file:
+      - ./author_management/.env
+    networks:
+      - internal
+
+  book_management:
+    image: mfulki/book-service:latest
+    ports:
+      - "50051:50051"
+    depends_on:
+      - book-db
+    env_file:
+      - ./book_management/.env
+    networks:
+      - internal
+
+  category_service:
+    image: mfulki/category-service:latest
+    ports:
+      - "50053:50053"
+    depends_on:
+      - category-db
+    env_file:
+      - ./category_service/.env
+    networks:
+      - internal
+
+  user-db:
+    image: postgres:16
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_DB=user_service_db
+    volumes:
+      - ./sql:/docker-entrypoint-initdb.d
+    networks:
+      - internal
+
+  author-db:
+    image: postgres:16
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_DB=author_db
+    volumes:
+      - ./sql:/docker-entrypoint-initdb.d
+    networks:
+      - internal
+
+  book-db:
+    image: postgres:16
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_DB=book_service_db
+    volumes:
+      - ./sql:/docker-entrypoint-initdb.d
+    networks:
+      - internal
+
+  category-db:
+    image: postgres:16
+    environment:
+      - POSTGRES_USER=category
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_DB=categorydb
+    volumes:
+      - ./sql:/docker-entrypoint-initdb.d
+    networks:
+      - internal
+
+  nginx:
+    image: nginx:latest
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf
+    depends_on:
+      - user_service
+      - author_management
+      - book_management
+      - category_service
+    networks:
+      - internal
+      - external
+
+networks:
+  internal:
+    driver: bridge
+  external:
+    external: true

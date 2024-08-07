@@ -1,0 +1,49 @@
+syntax = "proto3";
+package author;
+
+option go_package="internal/pb/author";
+
+service AuthorService{
+    rpc GetAuthors(Empty)returns(Authors);
+    rpc GetSomeAuthor(Ids)returns(Authors);
+    rpc GetAllAuthorsBook(Empty)returns(AuthorsBooksMap);
+    rpc GetSomeAuthorsBook(Ids)returns(AuthorsBooksMap);
+    rpc GetAuthor(Id)returns(Author);
+    rpc InsertAuthor(Author)returns(Message);
+    rpc DeleteOneAuthor(Id) returns (Message);
+}
+message AuthorsBooksMap{
+    map<uint64, AuthorsBooks> author_books_map = 1;
+}
+message AuthorsBook{
+    uint64 id=1;
+    string name=2;
+}
+message AuthorsBooks{
+    repeated AuthorsBook author_book_list=1;
+}
+message Authors{
+    repeated Author author=1;
+}
+message Author{
+    uint64 id=1;
+    string author_name=2;
+    string photo_url=3;
+    string gender=4;
+    string created_at =8;
+    string updated_at=9;
+    string deleted_at=10;
+}
+message Id {
+    uint64 Id=1;
+}
+
+message Ids {
+    repeated uint64 id=1;
+}
+
+message Empty{}
+
+message Message{
+    string message=1;
+}
