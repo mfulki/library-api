@@ -10,6 +10,7 @@ import (
 
 type StockJournalRepository interface {
 	InsertStockJournal(ctx context.Context, futureStatus string, ids []uint64, userId uint64) error
+	ReturnUpdate(ctx context.Context, userId uint64, ids []uint64) error
 }
 
 type stockJournalImpl struct {
@@ -42,6 +43,23 @@ func (r *stockJournalImpl) InsertStockJournal(ctx context.Context, futureStatus 
 			return apperror.ErrResourceNotFound
 		}
 
+	}
+
+	return nil
+}
+
+func (r *stockJournalImpl) ReturnUpdate(ctx context.Context, userId uint64, ids []uint64) error {
+	q := `Update stock_journals
+		set deleted_at=current_timestamp
+		where status='borrowed' and user_id=$1 
+		and book_item_id = ANY($2) `
+	result, err := r.db.ExecContext(ctx, q, userId, ids)
+	if err != nil {
+		logrus.Error(err)
+		return err
+	}
+	if rowsAffected, _ := result.RowsAffected(); rowsAffected == 0 {
+		return apperror.ErrResourceNotFound
 	}
 
 	return nil

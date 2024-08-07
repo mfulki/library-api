@@ -2,18 +2,20 @@ package usecase
 
 import (
 	"book-service/internal/apperror"
+	"book-service/internal/constant"
 	"book-service/internal/database/transaction"
 	"book-service/internal/entity"
 	"book-service/internal/repository"
 	"book-service/pkg/utils"
 	"context"
+	"fmt"
 )
 
 type BookUsecase interface {
 	GetAllBook(ctx context.Context) (*entity.Books, error)
 	GetBook(ctx context.Context, id uint64) (*entity.Book, error)
-	UserBorrowBook(ctx context.Context, ids []uint64) error
-	UserReturnsBook(ctx context.Context, ids []uint64) error
+	UserBorrowBook(ctx context.Context, ids []uint64) (*string, error)
+	UserReturnsBook(ctx context.Context, ids []uint64) (*string, error)
 }
 
 type bookUsecaseImpl struct {
@@ -51,40 +53,85 @@ func (u *bookUsecaseImpl) GetBook(ctx context.Context, id uint64) (*entity.Book,
 	return book, nil
 }
 
-func (u *bookUsecaseImpl) UserBorrowBook(ctx context.Context, ids []uint64) error {
+func (u *bookUsecaseImpl) UserBorrowBook(ctx context.Context, ids []uint64) (*string,error) {
 	user, ok := utils.CtxGetUser(ctx)
 	if !ok {
-		return apperror.ErrUnauthorized
+		return nil, apperror.ErrUnauthorized
 	}
 	futureStatus := "borrowed"
 	currentStatus := "available"
 
-	_, err := u.transactor.WithTransaction(ctx, func(ctx context.Context) (any, error) {
-		err := u.bookItemRepository.UpdateStatusBookItems(ctx, futureStatus, currentStatus, ids)
+	resultTx, err := u.transactor.WithTransaction(ctx, func(ctx context.Context) (any, error) {
+		mapStatus, err := u.bookItemRepository.LockRow(ctx, ids)
 		if err != nil {
 			return nil, err
 		}
+		if mapStatus[currentStatus] == nil {
+			return nil, apperror.ErrInvalidRequest
+		}
+		err = u.bookItemRepository.UpdateStatusBookItems(ctx, futureStatus, currentStatus, mapStatus[currentStatus])
+		if err != nil {
+			return nil, err
+		}
+		fmt.Println(err)
 
-		return nil, u.stockJournalRepository.InsertStockJournal(ctx, futureStatus, ids, user.Id)
+		return mapStatus, u.stockJournalRepository.InsertStockJournal(ctx, futureStatus, ids, user.Id)
 	})
-	return err
+	if err!=nil{
+		return nil,err
+	}
+	result := resultTx.(map[string][]uint64)
+	fmt.Println(result)
+	var message string
+	if result[currentStatus] != nil {
+		message = fmt.Sprintf("Id:%v, %s.", result[currentStatus], constant.BookSuccessReturnMsg)
+	}
+	for key, value := range result {
+		if key != currentStatus {
+			message = message + fmt.Sprintf("id %v, cannot borrow book. because status is %s.", value, key)
+		}
+	}
+	return &message,nil
 }
 
-func (u *bookUsecaseImpl) UserReturnsBook(ctx context.Context, ids []uint64) error {
+func (u *bookUsecaseImpl) UserReturnsBook(ctx context.Context, ids []uint64) (*string, error) {
 	user, ok := utils.CtxGetUser(ctx)
 	if !ok {
-		return apperror.ErrUnauthorized
+		return nil, apperror.ErrUnauthorized
 	}
 	futureStatusBook := "available"
 	futureStatus := "returned"
 	currentStatus := "borrowed"
 
-	_, err := u.transactor.WithTransaction(ctx, func(ctx context.Context) (any, error) {
-		err := u.bookItemRepository.UpdateStatusBookItems(ctx, futureStatusBook, currentStatus, ids)
+	resultTx, err := u.transactor.WithTransaction(ctx, func(ctx context.Context) (any, error) {
+		mapStatus, err := u.bookItemRepository.LockRow(ctx, ids)
 		if err != nil {
 			return nil, err
 		}
-		return nil, u.stockJournalRepository.InsertStockJournal(ctx, futureStatus, ids, user.Id)
+		if mapStatus[currentStatus] == nil {
+			return nil, apperror.ErrInvalidRequest
+		}
+		if err=u.stockJournalRepository.ReturnUpdate(ctx,user.Id,ids);err!=nil{
+			return nil,err
+		}
+		if err = u.bookItemRepository.UpdateStatusBookItems(ctx, futureStatusBook, currentStatus, ids);err!=nil{
+			return nil,err
+		}
+		return mapStatus, u.stockJournalRepository.InsertStockJournal(ctx, futureStatus, ids, user.Id)
 	})
-	return err
+	if err != nil {
+		return nil, err
+	}
+	result := resultTx.(map[string][]uint64)
+	fmt.Println(result)
+	var message string
+	if result[currentStatus] != nil {
+		message = fmt.Sprintf("Id:%v, %s.", result[currentStatus], constant.BookSuccessReturnMsg)
+	}
+	for key, value := range result {
+		if key != currentStatus {
+			message = message + fmt.Sprintf("id %v, cannot return book that you not borrow. because status is %s.", value, key)
+		}
+	}
+	return &message, nil
 }
