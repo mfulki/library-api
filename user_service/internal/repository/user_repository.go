@@ -29,9 +29,9 @@ func NewUserRepository(db transaction.Transaction) *userRepositoryImpl {
 func (r *userRepositoryImpl) RegisterUser(ctx context.Context, user entity.User) error {
 	q := `
 		INSERT INTO users 
-			(user_name, email, user_password, date_of_birth, gender, address,photo_url)
+			(user_name, email, user_password, date_of_birth, gender, address,photo_url,user_role)
 		VALUES
-			($1, $2, $3, $4, $5, $6, $7)
+			($1, $2, $3, $4, $5, $6, $7,'user')
 	`
 	result, err := r.db.ExecContext(ctx, q, user.Name, user.Email, user.Password, user.DateOfBirth, user.Gender, user.Address, user.PhotoURL)
 	if err != nil {
