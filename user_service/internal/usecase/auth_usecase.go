@@ -2,6 +2,7 @@ package usecase
 
 import (
 	"context"
+
 	"user-service/internal/apperror"
 	"user-service/internal/constant"
 	"user-service/internal/entity"
@@ -46,9 +47,10 @@ func (u *authUsecaseImpl) Register(ctx context.Context, user entity.User) error 
 
 func (u *authUsecaseImpl) Login(ctx context.Context, user entity.User) (string, error) {
 	result, err := u.userRepository.SelectOneByEmail(ctx, user)
+
 	if err != nil {
-		if err == apperror.ErrResourceNotFound{
-			return "",apperror.ErrInvalidCredential
+		if err == apperror.ErrResourceNotFound {
+			return "", apperror.ErrInvalidCredential
 		}
 		return "", err
 	}
@@ -58,7 +60,7 @@ func (u *authUsecaseImpl) Login(ctx context.Context, user entity.User) (string, 
 	}
 
 	jwtData := map[string]any{
-		"ID":    user.ID,
+		"ID":    result.ID,
 		"Email": user.Email,
 	}
 

@@ -36,10 +36,9 @@ func InitRouter(h *handlers) *fiber.App {
 
 	book := api.Group("/book")
 	book.Get("/", h.BookHandler.GetAllBook)
-	book.Use(h.Middleware.UserAuth())
 	book.Get("/:id", h.BookHandler.GetOneBook)
 
-	user := api.Group("/")
+	user := book.Group("/")
 	user.Use(h.Middleware.UserAuth())
 	user.Post("/borrow", h.BookHandler.PostBorrow)
 	user.Post("/return", h.BookHandler.PostReturn)

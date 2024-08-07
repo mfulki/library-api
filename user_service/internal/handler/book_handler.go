@@ -58,10 +58,9 @@ func (h *BookHandler) GetAllBook(ctx *fiber.Ctx) error {
 func (h *BookHandler) GetOneBook(ctx *fiber.Ctx) error {
 	param := new(request.BookId)
 	ctx.ParamsParser(param)
-	context := utils.GrpcSendJWT(ctx.Context())
 
 	ids := []uint64{param.Id}
-	respBook, err := h.bookService.GetBook(context, &pb.Id{Id: param.Id})
+	respBook, err := h.bookService.GetBook(ctx.Context(), &pb.Id{Id: param.Id})
 	if err != nil {
 		logrus.Errorf("could not request: %v", err)
 		return err
@@ -96,8 +95,7 @@ func (h *BookHandler) PostBorrow(ctx *fiber.Ctx) error {
 		return err
 	}
 	return ctx.Status(fiber.StatusOK).JSON(dto.Response{
-		Message: constant.DataCreatedMsg,
-		Data:    result.Message,
+		Message: result.Message,
 	})
 }
 
@@ -114,7 +112,6 @@ func (h *BookHandler) PostReturn(ctx *fiber.Ctx) error {
 		return err
 	}
 	return ctx.Status(fiber.StatusOK).JSON(dto.Response{
-		Message: constant.DataCreatedMsg,
-		Data:    result.Message,
+		Message: result.GetMessage(),
 	})
 }

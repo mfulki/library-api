@@ -5,5 +5,5 @@ type BookId struct {
 }
 
 type BookIds struct {
-	Ids []uint64 `query:"ids",json:"required"`
+	Ids []uint64 `query:"ids" json:"ids" validate:"gt=0,dive,required"`
 }
