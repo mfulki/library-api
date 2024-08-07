@@ -10,4 +10,5 @@ var (
 	ErrResourceNotFound = errors.New("resource is not found")
 	ErrInvalidRequest   = errors.New("payload is invalid")
 	ErrUnauthorized     = errors.New("unauthorized")
+	ErrAssertingAny     = errors.New("cannot asserting")
 )

@@ -33,7 +33,7 @@ func (h *BookHandler) GetBook(ctx context.Context, in *pb.Id) (*pb.Book, error) 
 
 	return response.NewGetBookResponse(book), nil
 }
-func (h *BookHandler) PostBorrow(ctx context.Context, in *pb.Ids) (*pb.Message, error) {
+func (h *BookHandler) PostBorrows(ctx context.Context, in *pb.Ids) (*pb.Message, error) {
 	err := h.bookUsecase.UserBorrowBook(ctx, in.Id)
 	if err != nil {
 		return nil, err

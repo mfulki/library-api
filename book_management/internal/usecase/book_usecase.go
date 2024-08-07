@@ -1,9 +1,11 @@
 package usecase
 
 import (
+	"book-service/internal/apperror"
 	"book-service/internal/database/transaction"
 	"book-service/internal/entity"
 	"book-service/internal/repository"
+	"book-service/pkg/utils"
 	"context"
 )
 
@@ -50,6 +52,10 @@ func (u *bookUsecaseImpl) GetBook(ctx context.Context, id uint64) (*entity.Book,
 }
 
 func (u *bookUsecaseImpl) UserBorrowBook(ctx context.Context, ids []uint64) error {
+	user, ok := utils.CtxGetUser(ctx)
+	if !ok {
+		return apperror.ErrUnauthorized
+	}
 	futureStatus := "borrowed"
 	currentStatus := "available"
 
@@ -58,23 +64,27 @@ func (u *bookUsecaseImpl) UserBorrowBook(ctx context.Context, ids []uint64) erro
 		if err != nil {
 			return nil, err
 		}
-		var userId uint64
-		return nil, u.stockJournalRepository.InsertStockJournal(ctx, futureStatus, ids, userId)
+
+		return nil, u.stockJournalRepository.InsertStockJournal(ctx, futureStatus, ids, user.Id)
 	})
 	return err
 }
 
 func (u *bookUsecaseImpl) UserReturnsBook(ctx context.Context, ids []uint64) error {
+	user, ok := utils.CtxGetUser(ctx)
+	if !ok {
+		return apperror.ErrUnauthorized
+	}
+	futureStatusBook := "available"
 	futureStatus := "returned"
 	currentStatus := "borrowed"
 
 	_, err := u.transactor.WithTransaction(ctx, func(ctx context.Context) (any, error) {
-		err := u.bookItemRepository.UpdateStatusBookItems(ctx, futureStatus, currentStatus, ids)
+		err := u.bookItemRepository.UpdateStatusBookItems(ctx, futureStatusBook, currentStatus, ids)
 		if err != nil {
 			return nil, err
 		}
-		var userId uint64
-		return nil, u.stockJournalRepository.InsertStockJournal(ctx, futureStatus, ids, userId)
+		return nil, u.stockJournalRepository.InsertStockJournal(ctx, futureStatus, ids, user.Id)
 	})
 	return err
 }

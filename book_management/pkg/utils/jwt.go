@@ -5,7 +5,6 @@ import (
 	"book-service/internal/constant"
 	"book-service/internal/entity"
 	"context"
-	"fmt"
 	"net/http"
 	"strings"
 	"time"
@@ -90,12 +89,12 @@ func GetUserFromJwt(req *http.Request) *entity.User {
 	}
 
 	return &entity.User{
-		ID:    id,
+		Id:    id,
 		Email: email,
 	}
 }
 
-func getActorFromJwt(req *http.Request, jwtFunc func(string) (jwt.MapClaims, bool)) (uint, string) {
+func getActorFromJwt(req *http.Request, jwtFunc func(string) (jwt.MapClaims, bool)) (uint64, string) {
 	authorization := req.Header.Get("Authorization")
 	bearerToken := strings.Split(authorization, " ")
 
@@ -123,11 +122,10 @@ func getActorFromJwt(req *http.Request, jwtFunc func(string) (jwt.MapClaims, boo
 		return 0, ""
 	}
 
-	return uint(id), email
+	return uint64(id), email
 }
 func GrpcSendJWT(ctx context.Context) context.Context {
 	token := ctx.Value("authorization").(string)
-	fmt.Print(token)
 	md := metadata.New(map[string]string{"authorization": token})
 	context := metadata.NewOutgoingContext(context.Background(), md)
 
